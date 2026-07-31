@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'dart:typed_data';
 import 'dart:ui' as ui;
-import 'package:file_picker/file_picker.dart';
+import 'package:file_selector/file_selector.dart';
 import 'package:flutter/painting.dart' as p;
 import 'package:google_fonts/google_fonts.dart';
 import 'package:pdf/pdf.dart';
@@ -11,19 +11,14 @@ import 'attendance_screen.dart';
 
 class PdfGeneratorService {
   Future<Uint8List?> pickExcelFile() async {
-    FilePickerResult? result = await FilePicker.pickFiles(
-      type: FileType.custom,
-      allowedExtensions: ['xlsx', 'xls'],
-      withData: true,
+    const XTypeGroup typeGroup = XTypeGroup(
+      label: 'Excel Files',
+      extensions: <String>['xlsx', 'xls'],
     );
-
-    if (result != null) {
-      if (result.files.single.bytes != null) {
-        return result.files.single.bytes;
-      } else if (result.files.single.path != null) {
-        final file = File(result.files.single.path!);
-        return await file.readAsBytes();
-      }
+    final XFile? file = await openFile(acceptedTypeGroups: <XTypeGroup>[typeGroup]);
+    
+    if (file != null) {
+      return await file.readAsBytes();
     }
     return null;
   }

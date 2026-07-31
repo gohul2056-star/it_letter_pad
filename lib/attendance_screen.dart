@@ -408,34 +408,37 @@ class _EditableLetterViewState extends State<EditableLetterView> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  const Text('Dr. S. Selvi, Prof & HOD/IT', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 11)),
-                  Text('துறைத்தலைவர்', style: GoogleFonts.notoSansTamil(fontSize: 11)),
-                ]
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    const Text('Dr. S. Selvi,\nProf & HOD/IT', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 11), textAlign: TextAlign.center),
+                    Text('துறைத்தலைவர்', style: GoogleFonts.notoSansTamil(fontSize: 11), textAlign: TextAlign.center),
+                  ]
+                ),
               ),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  SizedBox(
-                    width: 200,
-                    child: TextField(
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    TextField(
                       controller: _advisorController,
                       textAlign: TextAlign.center,
                       style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 11),
                       decoration: const InputDecoration(border: InputBorder.none, isDense: true, contentPadding: EdgeInsets.zero),
                     ),
-                  ),
-                  Text('ஆலோசகர்', style: GoogleFonts.notoSansTamil(fontSize: 11)),
-                ]
+                    Text('ஆலோசகர்', style: GoogleFonts.notoSansTamil(fontSize: 11), textAlign: TextAlign.center),
+                  ]
+                ),
               ),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  const Text('Dr. G. Wiselin Jiji', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 11)),
-                  Text('முதல்வர்', style: GoogleFonts.notoSansTamil(fontSize: 11)),
-                ]
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    const Text('Dr. G. Wiselin Jiji', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 11), textAlign: TextAlign.center),
+                    Text('முதல்வர்', style: GoogleFonts.notoSansTamil(fontSize: 11), textAlign: TextAlign.center),
+                  ]
+                ),
               ),
             ]
           ),
