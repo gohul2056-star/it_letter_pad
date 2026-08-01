@@ -194,7 +194,11 @@ class PdfGeneratorService {
                     pw.Column(
                       crossAxisAlignment: pw.CrossAxisAlignment.center,
                       children: [
-                        pw.Text(advisor.isNotEmpty ? advisor : 'Ms. K. Ramya Thamizharasi, AP/IT', style: pw.TextStyle(font: englishBold, fontSize: 10)),
+                        pw.Text(
+                          (advisor.isNotEmpty ? advisor : 'Ms. K. Ramya Thamizharasi, AP/IT').replaceAll(' & ', '\n'), 
+                          style: pw.TextStyle(font: englishBold, fontSize: 10),
+                          textAlign: pw.TextAlign.center,
+                        ),
                         pw.SizedBox(height: 2),
                         pwAdvTitle,
                       ]

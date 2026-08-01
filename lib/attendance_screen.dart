@@ -31,6 +31,7 @@ class AttendanceScreen extends StatefulWidget {
   final Uint8List excelBytes;
   final String fromDate;
   final String toDate;
+  final int totalSelectedDays;
   final String advisor;
 
   const AttendanceScreen({
@@ -39,6 +40,7 @@ class AttendanceScreen extends StatefulWidget {
     required this.excelBytes,
     required this.fromDate,
     required this.toDate,
+    required this.totalSelectedDays,
     required this.advisor,
   });
 
@@ -87,7 +89,22 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
       // Fallback if headers aren't explicitly named
       if (nameIdx == -1 && headerRow.isNotEmpty) nameIdx = 0;
       if (addressIdx == -1 && headerRow.length > 1) addressIdx = 1;
-      if (attendanceIdx == -1 && headerRow.length > 2) attendanceIdx = 2;
+      
+      if (attendanceIdx == -1) {
+        // Try to find a column containing a number (skipping the first two which are usually name/address/reg no)
+        List<List<Data?>> tempRows = table.rows.skip(1).toList();
+        if (tempRows.isNotEmpty) {
+          for (int i = 2; i < headerRow.length; i++) {
+            String val = tempRows.first.length > i ? (tempRows.first[i]?.value?.toString().trim() ?? '') : '';
+            if (double.tryParse(val) != null) {
+              attendanceIdx = i;
+              break;
+            }
+          }
+        }
+        // Absolute fallback
+        if (attendanceIdx == -1 && headerRow.length > 2) attendanceIdx = 2;
+      }
 
       List<List<Data?>> dataRows = table.rows.skip(1).toList();
       List<StudentData> parsed = [];
@@ -108,14 +125,24 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
         }
         String advisor = advisorIdx != -1 && row.length > advisorIdx ? (row[advisorIdx]?.value?.toString() ?? '') : '';
 
-        // Strip % so we can append it statically in the UI
+        // Strip % so we can parse it as a number of days
         att = att.replaceAll('%', '').trim();
+        
+        // Calculate percentage: (Days Attended / totalSelectedDays) * 100
+        String calculatedAtt = att;
+        if (widget.totalSelectedDays > 0 && att.isNotEmpty) {
+          double? daysAttended = double.tryParse(att);
+          if (daysAttended != null) {
+            double percentage = (daysAttended / widget.totalSelectedDays) * 100;
+            calculatedAtt = percentage.round().toString();
+          }
+        }
 
         // Add to list regardless of whether some fields are empty (since it's an editable UI)
         parsed.add(StudentData(
           name: name,
           address: address,
-          attendance: att,
+          attendance: calculatedAtt,
           date: date,
           advisor: advisor.isNotEmpty ? advisor : widget.advisor,
           fromDate: widget.fromDate,

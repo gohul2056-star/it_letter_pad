@@ -1,5 +1,7 @@
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
+import 'package:calendar_date_picker2/calendar_date_picker2.dart';
+import 'package:intl/intl.dart';
 import 'attendance_screen.dart';
 import 'pdf_generator_service.dart';
 
@@ -14,14 +16,22 @@ class _StudentDetailsScreenState extends State<StudentDetailsScreen> {
   String? _selectedYear;
   Uint8List? _excelBytes;
   final PdfGeneratorService _pdfService = PdfGeneratorService();
-  final TextEditingController _fromDateController = TextEditingController(text: '01.01.${DateTime.now().year}');
-  final TextEditingController _toDateController = TextEditingController(text: '01.12.${DateTime.now().year}');
-  final TextEditingController _advisorController = TextEditingController(text: '***********');
+  List<DateTime?> _selectedDates = [];
+  final TextEditingController _advisorController = TextEditingController(text: '');
+  
+  final List<String> _staffOptions = [
+    'Dr. R. Chithra Devi',
+    'Mrs. K.P. Ramya',
+    'Ms. K. Ramya Thamizharasi',
+    'Mrs. N. Rajeswari',
+    'Mr. J.Amos Viyanikaran',
+    'Mrs. M. Petchithai',
+    'Mrs. A. Shilba',
+  ];
+  List<String> _selectedStaff = [];
 
   @override
   void dispose() {
-    _fromDateController.dispose();
-    _toDateController.dispose();
     _advisorController.dispose();
     super.dispose();
   }
@@ -116,75 +126,97 @@ class _StudentDetailsScreenState extends State<StudentDetailsScreen> {
               ),
             ),
             const SizedBox(height: 20),
-            Row(
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text('From Date', style: TextStyle(fontWeight: FontWeight.w600, color: Color(0xFF1E293B))),
-                      const SizedBox(height: 8),
-                      TextField(
-                        controller: _fromDateController,
-                        decoration: InputDecoration(
-                          filled: true,
-                          fillColor: Colors.white,
-                          contentPadding: const EdgeInsets.symmetric(horizontal: 16),
-                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFFF1F5F9))),
-                          enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFFF1F5F9))),
-                          focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFF296FD8))),
-                        ),
-                      ),
-                    ],
+            const SizedBox(height: 20),
+            const Text('Select Dates', style: TextStyle(fontWeight: FontWeight.w600, color: Color(0xFF1E293B))),
+            const SizedBox(height: 8),
+            Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: const Color(0xFFF1F5F9)),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.02),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
                   ),
+                ],
+              ),
+              child: CalendarDatePicker2(
+                config: CalendarDatePicker2Config(
+                  calendarType: CalendarDatePicker2Type.multi,
+                  selectedDayHighlightColor: const Color(0xFF296FD8),
                 ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text('To Date', style: TextStyle(fontWeight: FontWeight.w600, color: Color(0xFF1E293B))),
-                      const SizedBox(height: 8),
-                      TextField(
-                        controller: _toDateController,
-                        decoration: InputDecoration(
-                          filled: true,
-                          fillColor: Colors.white,
-                          contentPadding: const EdgeInsets.symmetric(horizontal: 16),
-                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFFF1F5F9))),
-                          enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFFF1F5F9))),
-                          focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFF296FD8))),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
+                value: _selectedDates,
+                onValueChanged: (dates) => setState(() => _selectedDates = dates),
+              ),
             ),
+            const SizedBox(height: 8),
+            Text('Selected ${_selectedDates.where((d) => d != null).length} days', style: const TextStyle(color: Colors.grey)),
             const SizedBox(height: 20),
             const Text('Staff Name (Advisor)', style: TextStyle(fontWeight: FontWeight.w600, color: Color(0xFF1E293B))),
             const SizedBox(height: 8),
-            DropdownMenu<String>(
-              controller: _advisorController,
-              initialSelection: 'Enter or Select Name',
-              width: MediaQuery.of(context).size.width - 40,
-              inputDecorationTheme: InputDecorationTheme(
-                filled: true,
-                fillColor: Colors.white,
-                contentPadding: const EdgeInsets.symmetric(horizontal: 16),
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFFF1F5F9))),
-                enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFFF1F5F9))),
-                focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFF296FD8))),
+            GestureDetector(
+              onTap: () async {
+                final selected = await showDialog<List<String>>(
+                  context: context,
+                  builder: (context) {
+                    List<String> tempSelected = List.from(_selectedStaff);
+                    return StatefulBuilder(
+                      builder: (context, setState) {
+                        return AlertDialog(
+                          title: const Text('Select Advisors'),
+                          content: SingleChildScrollView(
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: _staffOptions.map((staff) {
+                                return CheckboxListTile(
+                                  title: Text(staff),
+                                  value: tempSelected.contains(staff),
+                                  onChanged: (bool? value) {
+                                    setState(() {
+                                      if (value == true) {
+                                        tempSelected.add(staff);
+                                      } else {
+                                        tempSelected.remove(staff);
+                                      }
+                                    });
+                                  },
+                                );
+                              }).toList(),
+                            ),
+                          ),
+                          actions: [
+                            TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
+                            TextButton(onPressed: () => Navigator.pop(context, tempSelected), child: const Text('OK')),
+                          ],
+                        );
+                      }
+                    );
+                  }
+                );
+                if (selected != null) {
+                  setState(() {
+                    _selectedStaff = selected;
+                    _advisorController.text = _selectedStaff.join(' & ');
+                  });
+                }
+              },
+              child: Container(
+                width: MediaQuery.of(context).size.width - 40,
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  border: Border.all(color: const Color(0xFFF1F5F9)),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Text(
+                  _selectedStaff.isEmpty ? 'Select Advisors' : _selectedStaff.join(' & '),
+                  style: TextStyle(fontSize: 16, color: _selectedStaff.isEmpty ? Colors.grey[600] : const Color(0xFF1E293B)),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
               ),
-              dropdownMenuEntries: const [
-                DropdownMenuEntry(value: 'Dr. R. Chithra Devi', label: 'Dr. R. Chithra Devi, ASP/IT'),
-                DropdownMenuEntry(value: 'Mrs. K.P. Ramya', label: 'Mrs. K.P. Ramya, AP/IT'),
-                DropdownMenuEntry(value: 'Ms. K. Ramya Thamizharasi ', label: 'Ms. K. Ramya Thamizharasi, AP/IT'),
-                DropdownMenuEntry(value: 'Mrs. N. Rajeswari ', label: 'Mrs. N. Rajeswari, AP/IT'),
-                DropdownMenuEntry(value: 'Mr. J.Amos Viyanikaran ', label: 'Mr.J.Amos Viyanikaran, AP/IT'),
-                DropdownMenuEntry(value: 'Mrs. M. Petchithai ', label: 'Mrs. M. Petchithai, AP/IT'),
-                DropdownMenuEntry(value: 'Mrs. A. Shilba ', label: 'Mrs. A. Shilba, AP/IT'),
-              ],
             ),
             const SizedBox(height: 30),
             const Text(
@@ -262,14 +294,37 @@ class _StudentDetailsScreenState extends State<StudentDetailsScreen> {
                   ),
                 );
               } else {
+                final validDates = _selectedDates.where((d) => d != null).map((d) => d!).toList();
+                if (validDates.isEmpty) {
+                  showDialog(
+                    context: context,
+                    builder: (context) => AlertDialog(
+                      title: const Text('Action Required'),
+                      content: const Text('Please select at least one date from the calendar.'),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(context),
+                          child: const Text('OK'),
+                        ),
+                      ],
+                    ),
+                  );
+                  return;
+                }
+                validDates.sort();
+                final fromDate = DateFormat('dd.MM.yyyy').format(validDates.first);
+                final toDate = DateFormat('dd.MM.yyyy').format(validDates.last);
+                final totalSelectedDays = validDates.length;
+
                 Navigator.push(
                   context,
                   MaterialPageRoute(
                     builder: (context) => AttendanceScreen(
                       year: _selectedYear!, 
                       excelBytes: _excelBytes!,
-                      fromDate: _fromDateController.text,
-                      toDate: _toDateController.text,
+                      fromDate: fromDate,
+                      toDate: toDate,
+                      totalSelectedDays: totalSelectedDays,
                       advisor: _advisorController.text,
                     ),
                   ),
