@@ -15,6 +15,8 @@ class StudentData {
   String advisor;
   String fromDate;
   String toDate;
+  bool isSelected;
+  String presentDays;
 
   StudentData({
     required this.rollNo,
@@ -25,6 +27,8 @@ class StudentData {
     required this.advisor,
     this.fromDate = '',
     this.toDate = '',
+    this.isSelected = false,
+    this.presentDays = '',
   });
 }
 
@@ -56,7 +60,6 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
   bool _isLoading = true;
   String _error = '';
   String? _selectedRollNo;
-  final TextEditingController _presentDaysController = TextEditingController();
 
   @override
   void initState() {
@@ -174,6 +177,8 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
           advisor: advisor.isNotEmpty ? advisor : widget.advisor,
           fromDate: widget.fromDate,
           toDate: widget.toDate,
+          isSelected: false,
+          presentDays: '',
         ));
       }
 
@@ -192,33 +197,22 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
     }
   }
 
-  void _updateAttendance() {
-    if (_selectedRollNo == null) return;
-    final idx = _students.indexWhere((s) => s.rollNo == _selectedRollNo);
-    if (idx == -1) return;
-    
-    double? days = double.tryParse(_presentDaysController.text);
-    if (days != null && widget.totalSelectedDays > 0) {
-      double percentage = (days / widget.totalSelectedDays) * 100;
-      setState(() {
-        _students[idx].attendance = percentage.round().toString();
-      });
-    }
-  }
-
   Future<void> _generatePdf() async {
-    if (_selectedRollNo == null) return;
-    final student = _students.firstWhere((s) => s.rollNo == _selectedRollNo);
+    final selectedStudents = _students.where((s) => s.isSelected).toList();
+    if (selectedStudents.isEmpty) {
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please select at least one student.')));
+      return;
+    }
     
     setState(() {
       _isLoading = true;
     });
     try {
-      final bytes = await _pdfService.generatePdfFromData([student]);
+      final bytes = await _pdfService.generatePdfFromData(selectedStudents);
       if (!mounted) return;
       await Printing.layoutPdf(
         onLayout: (PdfPageFormat format) async => bytes,
-        name: 'Attendance_Letter_${student.rollNo}.pdf',
+        name: 'Attendance_Letters.pdf',
       );
     } catch (e) {
       if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
@@ -253,65 +247,143 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
         backgroundColor: const Color(0xFF296FD8),
         foregroundColor: Colors.white,
       ),
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Row(
-              children: [
-                Expanded(
-                  child: DropdownButtonFormField<String>(
-                    decoration: const InputDecoration(
-                      labelText: 'Select Roll No',
-                      border: OutlineInputBorder(),
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          final bool isMobile = constraints.maxWidth < 800;
+
+          final studentList = Column(
+            children: [
+              Container(
+                color: Theme.of(context).colorScheme.surface,
+                padding: const EdgeInsets.all(8.0),
+                child: Row(
+                  children: [
+                    Checkbox(
+                      value: _students.isNotEmpty && _students.every((s) => s.isSelected),
+                      onChanged: (val) {
+                        setState(() {
+                          for (var s in _students) {
+                            s.isSelected = val ?? false;
+                          }
+                        });
+                      }
                     ),
-                    value: _selectedRollNo,
-                    items: _students.map((s) => DropdownMenuItem(value: s.rollNo, child: Text(s.rollNo))).toList(),
-                    onChanged: (val) {
-                      setState(() {
-                         _selectedRollNo = val;
-                      });
-                    },
-                  ),
+                    const Expanded(child: Text('Select All', style: TextStyle(fontWeight: FontWeight.bold))),
+                  ],
+                )
+              ),
+              Expanded(
+                child: ListView.builder(
+                  itemCount: _students.length,
+                  itemBuilder: (context, index) {
+                    final s = _students[index];
+                    return Card(
+                      margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      color: _selectedRollNo == s.rollNo ? Colors.blue.withValues(alpha: 0.1) : Theme.of(context).colorScheme.surface,
+                      child: ListTile(
+                        leading: Checkbox(
+                          value: s.isSelected,
+                          onChanged: (val) {
+                            setState(() {
+                              s.isSelected = val ?? false;
+                            });
+                          }
+                        ),
+                        title: Text(s.name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+                        subtitle: Text(s.rollNo, style: const TextStyle(fontSize: 12)),
+                        trailing: SizedBox(
+                          width: 60,
+                          child: TextFormField(
+                            initialValue: s.presentDays,
+                            decoration: const InputDecoration(
+                              labelText: 'Days',
+                              isDense: true,
+                            ),
+                            keyboardType: TextInputType.number,
+                            onChanged: (val) {
+                              s.presentDays = val;
+                              double? days = double.tryParse(val);
+                              if (days != null && widget.totalSelectedDays > 0) {
+                                double percentage = (days / widget.totalSelectedDays) * 100;
+                                s.attendance = percentage.round().toString();
+                              }
+                              setState(() {});
+                            },
+                          ),
+                        ),
+                        onTap: () {
+                          setState(() {
+                            _selectedRollNo = s.rollNo;
+                          });
+                        },
+                      ),
+                    );
+                  },
                 ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: TextField(
-                    controller: _presentDaysController,
-                    decoration: const InputDecoration(
-                      labelText: 'Number of Present Days',
-                      border: OutlineInputBorder(),
-                    ),
-                    keyboardType: TextInputType.number,
-                    onChanged: (val) {
-                       _updateAttendance();
-                    }
-                  ),
-                )
-              ]
-            )
-          ),
-          const Divider(),
-          Expanded(
-            child: _selectedRollNo == null 
-              ? const Center(child: Text('Please select a Roll No')) 
-              : EditableLetterView(
-                  student: _students.firstWhere((s) => s.rollNo == _selectedRollNo),
-                  onChanged: (updatedStudent) {
-                    final idx = _students.indexWhere((s) => s.rollNo == _selectedRollNo);
-                    if (idx != -1) {
-                      _students[idx] = updatedStudent;
-                    }
+              ),
+            ],
+          );
+
+          final preview = _selectedRollNo == null 
+            ? const Center(child: Text('Please select a student from the list to preview.')) 
+            : EditableLetterView(
+                key: ValueKey(_selectedRollNo),
+                student: _students.firstWhere((s) => s.rollNo == _selectedRollNo),
+                onChanged: (updatedStudent) {
+                  final idx = _students.indexWhere((s) => s.rollNo == _selectedRollNo);
+                  if (idx != -1) {
+                    _students[idx] = updatedStudent;
                   }
-                )
-          )
-        ]
+                }
+              );
+
+          if (isMobile) {
+            return DefaultTabController(
+              length: 2,
+              child: Column(
+                children: [
+                  const TabBar(
+                    labelColor: Colors.blue,
+                    unselectedLabelColor: Colors.grey,
+                    tabs: [
+                      Tab(text: 'Students List'),
+                      Tab(text: 'Live Preview'),
+                    ],
+                  ),
+                  Expanded(
+                    child: TabBarView(
+                      children: [
+                        studentList,
+                        preview,
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            );
+          }
+
+          return Row(
+            children: [
+              Expanded(
+                flex: 1,
+                child: studentList,
+              ),
+              const VerticalDivider(width: 1),
+              Expanded(
+                flex: 2,
+                child: preview,
+              )
+            ]
+          );
+        }
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: _generatePdf,
-        label: const Text('Print / PDF'),
+        label: Text('Generate PDF (${_students.where((s) => s.isSelected).length})'),
         icon: const Icon(Icons.print),
         backgroundColor: const Color(0xFF296FD8),
+        foregroundColor: Colors.white,
       ),
     );
   }
@@ -408,7 +480,7 @@ class _EditableLetterViewState extends State<EditableLetterView> {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      color: const Color(0xFFE2E8F0),
+      color: Theme.of(context).scaffoldBackgroundColor,
       alignment: Alignment.center,
       padding: const EdgeInsets.all(16.0),
       child: FittedBox(
@@ -492,7 +564,7 @@ class _EditableLetterViewState extends State<EditableLetterView> {
                 ),
                 const SizedBox(height: 10),
                 Text('ஐயா,', style: GoogleFonts.notoSansTamil(fontSize: 14, fontStyle: FontStyle.italic, color: Colors.black)),
-                const SizedBox(height: 10),
+                const SizedBox(height: 5), // Reduced
 
                 Wrap(
                   crossAxisAlignment: WrapCrossAlignment.center,
@@ -546,20 +618,20 @@ class _EditableLetterViewState extends State<EditableLetterView> {
                     Text(' வரை).', style: GoogleFonts.notoSansTamil(fontSize: 13, height: 2.0, color: Colors.black)),
                   ],
                 ),
-                const SizedBox(height: 10),
+                const SizedBox(height: 8), // Reduced
 
                 Text(
                   '      பல்கலைக் கழகத் தேர்வு விதிமுறைகளின் படி ஒரு மாணவரின் வருகை பதிவு 75 சதவீதத்திற்கு குறைவாக இருந்தால் அவரை பல்கலைக்கழக தேர்வுகள் எழுத அனுமதிக்க இயலாது. மற்றும் இந்த பருவத்தின் கடைசி வேலை நாளுக்குள் உங்களது மகன் வருகைப்பதிவு 75% க்கு அதிகமாக இருக்க நாள் தவறாது வகுப்புக்கு குறித்த நேரத்தில் வருகை புரிய தகுந்த அறிவுரை கூறவும். எனவே இக்கடிதம் கண்டவுடன் துறை தலைவரை உடனே சந்திக்கவும்.',
                   style: GoogleFonts.notoSansTamil(fontSize: 13, height: 2.0, color: Colors.black),
                   textAlign: TextAlign.justify,
                 ),
-                const SizedBox(height: 10),
+                const SizedBox(height: 10), // Reduced
 
                 Center(child: Text('நன்றி.', style: GoogleFonts.notoSansTamil(fontSize: 13, color: Colors.black))),
-                const SizedBox(height: 10),
+                const SizedBox(height: 10), // Reduced
 
                 Align(alignment: Alignment.centerRight, child: Text('இப்படிக்கு,', style: GoogleFonts.notoSansTamil(fontSize: 13, color: Colors.black))),
-                const SizedBox(height: 30),
+                const SizedBox(height: 20), // Reduced from 30
 
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -601,7 +673,7 @@ class _EditableLetterViewState extends State<EditableLetterView> {
                   ]
                 ),
                 
-                const SizedBox(height: 10),
+                const SizedBox(height: 5), // Reduced
                 const Divider(thickness: 1.5, color: Colors.black),
                 
                 Row(

@@ -56,12 +56,12 @@ class _StudentDetailsScreenState extends State<StudentDetailsScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
+            Text(
               'Select Year',
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
-                color: Color(0xFF1E293B),
+                color: Theme.of(context).textTheme.bodyLarge?.color,
               ),
             ),
             const SizedBox(height: 12),
@@ -79,7 +79,7 @@ class _StudentDetailsScreenState extends State<StudentDetailsScreen> {
                 initialValue: _selectedYear,
                 offset: const Offset(0, 56),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                color: Colors.white,
+                color: Theme.of(context).colorScheme.surface,
                 elevation: 4,
                 constraints: BoxConstraints(
                   minWidth: MediaQuery.of(context).size.width - 40,
@@ -103,26 +103,26 @@ class _StudentDetailsScreenState extends State<StudentDetailsScreen> {
                   }
                 },
                 itemBuilder: (context) => [
-                  const PopupMenuItem(value: '2', child: Text('2 Years')),
-                  const PopupMenuItem(value: '3', child: Text('3 Years')),
-                  const PopupMenuItem(value: '4', child: Text('4 Years')),
+                  const PopupMenuItem(value: '2025', child: Text('2025 - 2029')),
+                  const PopupMenuItem(value: '2024', child: Text('2024 - 2028')),
+                  const PopupMenuItem(value: '2023', child: Text('2023 - 2027')),
                 ],
                 child: Container(
                   height: 56,
                   width: MediaQuery.of(context).size.width - 40,
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   decoration: BoxDecoration(
-                    color: Colors.white,
-                    border: Border.all(color: const Color(0xFFF1F5F9)),
+                    color: Theme.of(context).colorScheme.surface,
+                    border: Border.all(color: Theme.of(context).brightness == Brightness.dark ? Colors.grey[800]! : const Color(0xFFF1F5F9)),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        _selectedYear != null ? '$_selectedYear Years' : 'Choose a year', 
+                        _selectedYear != null ? '$_selectedYear Batch' : 'Choose a Batch',
                         style: TextStyle(
-                          color: _selectedYear != null ? const Color(0xFF1E293B) : Colors.grey[700], 
+                          color: _selectedYear != null ? Theme.of(context).textTheme.bodyLarge?.color : Colors.grey[700], 
                           fontSize: 16
                         )
                       ),
@@ -141,8 +141,8 @@ class _StudentDetailsScreenState extends State<StudentDetailsScreen> {
                       icon: const Icon(Icons.upload_file),
                       label: Text(_excelBytes != null ? 'Update Excel File' : 'Upload Excel File'),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFFF1F5F9),
-                        foregroundColor: const Color(0xFF1E293B),
+                        backgroundColor: Theme.of(context).brightness == Brightness.dark ? Colors.grey[800] : const Color(0xFFF1F5F9),
+                        foregroundColor: Theme.of(context).textTheme.bodyLarge?.color ?? const Color(0xFF1E293B),
                         elevation: 0,
                       ),
                       onPressed: () async {
@@ -176,13 +176,13 @@ class _StudentDetailsScreenState extends State<StudentDetailsScreen> {
                 ),
             ],
             const SizedBox(height: 20),
-            const Text('Select Dates', style: TextStyle(fontWeight: FontWeight.w600, color: Color(0xFF1E293B))),
+            Text('Select Dates', style: TextStyle(fontWeight: FontWeight.w600, color: Theme.of(context).textTheme.bodyLarge?.color)),
             const SizedBox(height: 8),
             Container(
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: Theme.of(context).colorScheme.surface,
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: const Color(0xFFF1F5F9)),
+                border: Border.all(color: Theme.of(context).brightness == Brightness.dark ? Colors.grey[800]! : const Color(0xFFF1F5F9)),
                 boxShadow: [
                   BoxShadow(
                     color: Colors.black.withOpacity(0.02),
@@ -203,7 +203,7 @@ class _StudentDetailsScreenState extends State<StudentDetailsScreen> {
             const SizedBox(height: 8),
             Text('Selected ${_selectedDates.where((d) => d != null).length} days', style: const TextStyle(color: Colors.grey)),
             const SizedBox(height: 20),
-            const Text('Staff Name (Advisor)', style: TextStyle(fontWeight: FontWeight.w600, color: Color(0xFF1E293B))),
+            Text('Staff Name (Advisor)', style: TextStyle(fontWeight: FontWeight.w600, color: Theme.of(context).textTheme.bodyLarge?.color)),
             const SizedBox(height: 8),
             GestureDetector(
               onTap: () async {
@@ -255,25 +255,25 @@ class _StudentDetailsScreenState extends State<StudentDetailsScreen> {
                 width: MediaQuery.of(context).size.width - 40,
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                 decoration: BoxDecoration(
-                  color: Colors.white,
-                  border: Border.all(color: const Color(0xFFF1F5F9)),
+                  color: Theme.of(context).colorScheme.surface,
+                  border: Border.all(color: Theme.of(context).brightness == Brightness.dark ? Colors.grey[800]! : const Color(0xFFF1F5F9)),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Text(
                   _selectedStaff.isEmpty ? 'Select Advisors' : _selectedStaff.join(' & '),
-                  style: TextStyle(fontSize: 16, color: _selectedStaff.isEmpty ? Colors.grey[600] : const Color(0xFF1E293B)),
+                  style: TextStyle(fontSize: 16, color: _selectedStaff.isEmpty ? Colors.grey[600] : Theme.of(context).textTheme.bodyLarge?.color),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
             ),
             const SizedBox(height: 30),
-            const Text(
+            Text(
               'Quick Actions',
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
-                color: Color(0xFF1E293B),
+                color: Theme.of(context).textTheme.bodyLarge?.color,
               ),
             ),
             const SizedBox(height: 16),
@@ -297,9 +297,9 @@ class _StudentDetailsScreenState extends State<StudentDetailsScreen> {
   Widget _buildActionCard(BuildContext context, String title, IconData icon) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFF1F5F9)),
+        border: Border.all(color: Theme.of(context).brightness == Brightness.dark ? Colors.grey[800]! : const Color(0xFFF1F5F9)),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.02),
@@ -396,10 +396,10 @@ class _StudentDetailsScreenState extends State<StudentDetailsScreen> {
               const SizedBox(height: 12),
               Text(
                 title,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
-                  color: Color(0xFF1E293B),
+                  color: Theme.of(context).textTheme.bodyLarge?.color,
                 ),
               ),
             ],

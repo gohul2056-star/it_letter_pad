@@ -63,11 +63,11 @@ class PdfGeneratorService {
 
     // Pre-generate static Tamil text images using Flutter's TextPainter (perfect shaping)
     final p.TextStyle tamilStyle14Bold = GoogleFonts.notoSansTamil(fontSize: 14, fontWeight: p.FontWeight.bold, color: const p.Color(0xFF000000));
-    final p.TextStyle tamilStyle12Bold = GoogleFonts.notoSansTamil(fontSize: 12, fontWeight: p.FontWeight.bold, color: const p.Color(0xFF000000));
-    final p.TextStyle tamilStyle12Italic = GoogleFonts.notoSansTamil(fontSize: 12, fontStyle: p.FontStyle.italic, color: const p.Color(0xFF000000));
-    final p.TextStyle tamilStyle12 = GoogleFonts.notoSansTamil(fontSize: 12, color: const p.Color(0xFF000000));
-    final p.TextStyle tamilStyle10 = GoogleFonts.notoSansTamil(fontSize: 10, color: const p.Color(0xFF000000));
-    final p.TextStyle englishStyleBold = const p.TextStyle(fontWeight: p.FontWeight.bold, fontFamily: 'Roboto', color: p.Color(0xFF000000));
+    final p.TextStyle tamilStyle12Bold = GoogleFonts.notoSansTamil(fontSize: 13, fontWeight: p.FontWeight.bold, color: const p.Color(0xFF000000));
+    final p.TextStyle tamilStyle12Italic = GoogleFonts.notoSansTamil(fontSize: 14, fontStyle: p.FontStyle.italic, color: const p.Color(0xFF000000));
+    final p.TextStyle tamilStyle12 = GoogleFonts.notoSansTamil(fontSize: 14, height: 2.0, color: const p.Color(0xFF000000));
+    final p.TextStyle tamilStyle10 = GoogleFonts.notoSansTamil(fontSize: 11, color: const p.Color(0xFF000000));
+    final p.TextStyle englishStyle = const p.TextStyle(fontFamily: 'Roboto', fontSize: 14, height: 2.0, color: p.Color(0xFF000000));
     
     final pwHeader1 = await _buildTextImage(p.TextSpan(text: 'டாக்டர் சிவந்தி ஆதித்தனார் பொறியியல் கல்லூரி', style: tamilStyle14Bold));
     final pwHeader2 = await _buildTextImage(p.TextSpan(text: 'திருச்செந்தூர் - 628 215', style: tamilStyle12Bold));
@@ -104,13 +104,13 @@ class PdfGeneratorService {
           style: tamilStyle12,
           children: [
             const p.TextSpan(text: '\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0எங்களது கல்லூரியில் இறுதி ஆண்டு Information Technology துறையில் பயிலும் தங்களது மகன்/மகள் '),
-            p.TextSpan(text: studentName, style: englishStyleBold),
+            p.TextSpan(text: studentName, style: englishStyle),
             const p.TextSpan(text: ' அவர்களின் கல்லூரி வருகைப்பதிவு '),
-            p.TextSpan(text: attendance, style: englishStyleBold),
+            p.TextSpan(text: attendance, style: englishStyle),
             const p.TextSpan(text: '% ஆக உள்ளது. ('),
-            p.TextSpan(text: fromDate, style: englishStyleBold),
+            p.TextSpan(text: fromDate, style: englishStyle),
             const p.TextSpan(text: ' முதல் '),
-            p.TextSpan(text: toDate, style: englishStyleBold),
+            p.TextSpan(text: toDate, style: englishStyle),
             const p.TextSpan(text: ' வரை).'),
           ]
         ),
@@ -121,7 +121,7 @@ class PdfGeneratorService {
       pdf.addPage(
         pw.Page(
           pageFormat: PdfPageFormat.a4,
-          margin: const pw.EdgeInsets.all(40),
+          margin: const pw.EdgeInsets.symmetric(horizontal: 40, vertical: 25), // Reduced vertical margins
           build: (pw.Context context) {
             return pw.Column(
               crossAxisAlignment: pw.CrossAxisAlignment.start,
@@ -132,7 +132,7 @@ class PdfGeneratorService {
                 pw.Text('OFFICE : 04639 - 242482', style: pw.TextStyle(font: englishFont, fontSize: 10)),
                 pw.Text('FAX : 243188', style: pw.TextStyle(font: englishFont, fontSize: 10)),
                 pw.Divider(thickness: 1),
-                pw.SizedBox(height: 10),
+                pw.SizedBox(height: 8),
                 
                 pw.Row(
                   mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
@@ -141,41 +141,41 @@ class PdfGeneratorService {
                     pw.Column(
                       crossAxisAlignment: pw.CrossAxisAlignment.start,
                       children: [
-                        pw.Text('Dr. G. Wiselin Jiji', style: pw.TextStyle(font: englishBold, fontSize: 13)),
-                        pw.Text('PRINCIPAL', style: pw.TextStyle(font: englishBold, fontSize: 13)),
+                        pw.Text('Dr. G. Wiselin Jiji', style: pw.TextStyle(font: englishFont, fontSize: 13)),
+                        pw.Text('PRINCIPAL', style: pw.TextStyle(font: englishFont, fontSize: 13)),
                       ]
                     ),
                     pw.Row(
                       children: [
                         pwDateLabel,
-                        pw.Text(date, style: pw.TextStyle(font: englishBold, fontSize: 13)),
+                        pw.Text(date, style: pw.TextStyle(font: englishFont, fontSize: 13)),
                       ]
                     ),
                   ],
                 ),
-                pw.SizedBox(height: 30),
+                pw.SizedBox(height: 10),
 
                 pwToLabel,
                 pw.Padding(
                   padding: const pw.EdgeInsets.only(left: 30, top: 2),
                   child: pw.Text(
                     studentName + ',\n' + studentAddress, 
-                    style: pw.TextStyle(font: englishFont, fontSize: 12, lineSpacing: 2)
+                    style: pw.TextStyle(font: englishFont, fontSize: 12)
                   ),
                 ),
-                pw.SizedBox(height: 30),
+                pw.SizedBox(height: 10), // Reduced from 15
 
                 pwSalutation,
-                pw.SizedBox(height: 15),
+                pw.SizedBox(height: 5), // Reduced from 10
 
                 pwPara1,
-                pw.SizedBox(height: 15),
+                pw.SizedBox(height: 8), // Reduced from 10
 
                 pwPara2,
-                pw.SizedBox(height: 40),
+                pw.SizedBox(height: 10), // Reduced from 20
 
                 pw.Center(child: pwThanks),
-                pw.SizedBox(height: 30),
+                pw.SizedBox(height: 10), // Reduced from 15
 
                 pw.Align(alignment: pw.Alignment.centerRight, child: pwYours),
                 pw.Spacer(),
@@ -187,7 +187,7 @@ class PdfGeneratorService {
                     pw.Column(
                       crossAxisAlignment: pw.CrossAxisAlignment.center,
                       children: [
-                        pw.Text('Dr. S. Selvi, Prof & HOD/IT', style: pw.TextStyle(font: englishBold, fontSize: 11)),
+                        pw.Text('Dr. S. Selvi, Prof & HOD/IT', style: pw.TextStyle(font: englishFont, fontSize: 11)),
                         pw.SizedBox(height: 2),
                         pwHodTitle,
                       ]
@@ -197,7 +197,7 @@ class PdfGeneratorService {
                       children: [
                         pw.Text(
                           (advisor.isNotEmpty ? advisor : 'Ms. K. Ramya Thamizharasi, AP/IT').replaceAll(' & ', '\n'), 
-                          style: pw.TextStyle(font: englishBold, fontSize: 11),
+                          style: pw.TextStyle(font: englishFont, fontSize: 11),
                           textAlign: pw.TextAlign.center,
                         ),
                         pw.SizedBox(height: 2),
@@ -207,7 +207,7 @@ class PdfGeneratorService {
                     pw.Column(
                       crossAxisAlignment: pw.CrossAxisAlignment.center,
                       children: [
-                        pw.Text('Dr. G. Wiselin Jiji', style: pw.TextStyle(font: englishBold, fontSize: 11)),
+                        pw.Text('Dr. G. Wiselin Jiji', style: pw.TextStyle(font: englishFont, fontSize: 11)),
                         pw.SizedBox(height: 2),
                         pwPrinTitle,
                       ]
@@ -215,7 +215,7 @@ class PdfGeneratorService {
                   ]
                 ),
                 
-                pw.SizedBox(height: 10),
+                pw.SizedBox(height: 5), // Reduced from 10
                 pw.Divider(thickness: 1.5),
                 
                 pw.Row(
@@ -252,7 +252,7 @@ class PdfGeneratorService {
                           pw.Text('To', style: pw.TextStyle(font: englishFont, fontSize: 10)),
                           pw.SizedBox(height: 10),
                           pw.Text(studentName + ',', style: pw.TextStyle(font: englishFont, fontSize: 10)),
-                          pw.Text(studentAddress, style: pw.TextStyle(font: englishFont, fontSize: 10, lineSpacing: 2)),
+                          pw.Text(studentAddress, style: pw.TextStyle(font: englishFont, fontSize: 10)),
                         ]
                       )
                     ),

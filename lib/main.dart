@@ -12,11 +12,32 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Student Dashboard',
+      themeMode: ThemeMode.system,
       theme: ThemeData(
         primaryColor: const Color(0xFF296FD8),
-        scaffoldBackgroundColor: const Color(0xFFF1F5F9), // Light grayish-blue bg
+        scaffoldBackgroundColor: const Color(
+          0xFFF1F5F9,
+        ), // Light grayish-blue bg
         fontFamily: 'Inter',
         useMaterial3: true,
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: const Color(0xFF296FD8),
+          brightness: Brightness.light,
+          primary: const Color(0xFF296FD8),
+          surface: Colors.white,
+        ),
+      ),
+      darkTheme: ThemeData(
+        primaryColor: const Color(0xFF296FD8),
+        scaffoldBackgroundColor: const Color(0xFF121212),
+        fontFamily: 'Inter',
+        useMaterial3: true,
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: const Color(0xFF296FD8),
+          brightness: Brightness.dark,
+          primary: const Color(0xFF296FD8),
+          surface: const Color(0xFF1E1E1E),
+        ),
       ),
       home: const DashboardScreen(),
       debugShowCheckedModeBanner: false,
@@ -45,9 +66,7 @@ class DashboardScreen extends StatelessWidget {
         backgroundColor: const Color(0xFF296FD8),
         elevation: 0,
         shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(
-            bottom: Radius.circular(20),
-          ),
+          borderRadius: BorderRadius.vertical(bottom: Radius.circular(20)),
         ),
         leading: IconButton(
           icon: const Icon(Icons.menu, color: Colors.white),
@@ -57,7 +76,7 @@ class DashboardScreen extends StatelessWidget {
       ),
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: Theme.of(context).colorScheme.surface,
           borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
           boxShadow: [
             BoxShadow(
@@ -70,14 +89,20 @@ class DashboardScreen extends StatelessWidget {
         child: ClipRRect(
           borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
           child: BottomNavigationBar(
-            backgroundColor: Colors.white,
+            backgroundColor: Theme.of(context).colorScheme.surface,
             type: BottomNavigationBarType.fixed,
             showSelectedLabels: true,
             showUnselectedLabels: true,
             selectedItemColor: const Color(0xFF296FD8),
             unselectedItemColor: const Color(0xFF64748B),
-            selectedLabelStyle: const TextStyle(fontWeight: FontWeight.w600, fontSize: 12),
-            unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.w500, fontSize: 12),
+            selectedLabelStyle: const TextStyle(
+              fontWeight: FontWeight.w600,
+              fontSize: 12,
+            ),
+            unselectedLabelStyle: const TextStyle(
+              fontWeight: FontWeight.w500,
+              fontSize: 12,
+            ),
             items: [
               BottomNavigationBarItem(
                 icon: Container(
@@ -110,10 +135,10 @@ class DashboardScreen extends StatelessWidget {
             // Greeting Section
             Text(
               _getGreeting(),
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w500,
-                color: Color(0xFF1E293B),
+                color: Theme.of(context).textTheme.bodyLarge?.color,
               ),
             ),
             const SizedBox(height: 4),
@@ -128,10 +153,7 @@ class DashboardScreen extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(width: 8),
-                const Text(
-                  '👋',
-                  style: TextStyle(fontSize: 20),
-                ),
+                const Text('👋', style: TextStyle(fontSize: 20)),
               ],
             ),
             const SizedBox(height: 24),
@@ -141,8 +163,10 @@ class DashboardScreen extends StatelessWidget {
               width: double.infinity,
               height: 160,
               decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  colors: [Color(0xFFE6F0FF), Color(0xFFC4DBFE)],
+                gradient: LinearGradient(
+                  colors: Theme.of(context).brightness == Brightness.dark
+                      ? [const Color(0xFF1E3A8A), const Color(0xFF1E40AF)]
+                      : [const Color(0xFFE6F0FF), const Color(0xFFC4DBFE)],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
@@ -198,9 +222,12 @@ class DashboardScreen extends StatelessWidget {
                     top: 15,
                     right: 15,
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 6,
+                      ),
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        color: Theme.of(context).colorScheme.surface,
                         borderRadius: BorderRadius.circular(12),
                         boxShadow: [
                           BoxShadow(
@@ -210,9 +237,9 @@ class DashboardScreen extends StatelessWidget {
                           ),
                         ],
                       ),
-                      child: const Column(
+                      child: Column(
                         children: [
-                          Text(
+                          const Text(
                             'Academic Year',
                             style: TextStyle(
                               fontSize: 10,
@@ -225,7 +252,9 @@ class DashboardScreen extends StatelessWidget {
                             style: TextStyle(
                               fontSize: 12,
                               fontWeight: FontWeight.bold,
-                              color: Color(0xFF1E293B),
+                              color: Theme.of(
+                                context,
+                              ).textTheme.bodyLarge?.color,
                             ),
                           ),
                         ],
@@ -250,12 +279,12 @@ class DashboardScreen extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text(
+                Text(
                   'Quick Actions',
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
-                    color: Color(0xFF1E293B),
+                    color: Theme.of(context).textTheme.bodyLarge?.color,
                   ),
                 ),
                 GestureDetector(
@@ -282,11 +311,12 @@ class DashboardScreen extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 16),
-            
+
             // Grid for Quick Actions (Only showing Students)
             LayoutBuilder(
               builder: (context, constraints) {
-                int crossAxisCount = 3;
+                int crossAxisCount;
+
                 if (constraints.maxWidth > 1200) {
                   crossAxisCount = 8;
                 } else if (constraints.maxWidth > 800) {
@@ -295,18 +325,51 @@ class DashboardScreen extends StatelessWidget {
                   crossAxisCount = 4;
                 } else if (constraints.maxWidth < 350) {
                   crossAxisCount = 2;
+                } else {
+                  crossAxisCount = 3;
                 }
-                
-                return GridView.count(
-                  crossAxisCount: crossAxisCount,
+
+                const double spacing = 12;
+
+                // Calculate actual card width
+                final double cardWidth =
+                    (constraints.maxWidth - ((crossAxisCount - 1) * spacing)) /
+                    crossAxisCount;
+
+                // Calculate height based on card width
+                final double cardHeight = (cardWidth * 0.95).clamp(
+                  100.0,
+                  150.0,
+                );
+
+                final actions = [
+                  {
+                    'name': 'Leave Intimation',
+                    'icon': Icons.quick_contacts_mail,
+                  },
+                  {'name': 'Report Card', 'icon': Icons.credit_card_outlined},
+                  //{'name': 'Events', 'icon': Icons.event},
+                ];
+
+                return GridView.builder(
+                  itemCount: actions.length,
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
-                  mainAxisSpacing: 12,
-                  crossAxisSpacing: 12,
-                  childAspectRatio: 1.1,
-                  children: [
-                    _buildActionCard(context, 'Students', Icons.people_outline),
-                  ],
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: crossAxisCount,
+                    crossAxisSpacing: spacing,
+                    mainAxisSpacing: spacing,
+                    mainAxisExtent: cardHeight,
+                  ),
+                  itemBuilder: (context, index) {
+                    final action = actions[index];
+
+                    return _buildActionCard(
+                      context,
+                      action['name'] as String,
+                      action['icon'] as IconData,
+                    );
+                  },
                 );
               },
             ),
@@ -319,9 +382,13 @@ class DashboardScreen extends StatelessWidget {
   Widget _buildActionCard(BuildContext context, String title, IconData icon) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFF1F5F9)),
+        border: Border.all(
+          color: Theme.of(context).brightness == Brightness.dark
+              ? Colors.grey[800]!
+              : const Color(0xFFF1F5F9),
+        ),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.02),
@@ -335,32 +402,43 @@ class DashboardScreen extends StatelessWidget {
         child: InkWell(
           borderRadius: BorderRadius.circular(16),
           onTap: () {
-            if (title == 'Students') {
-              Navigator.push(context, MaterialPageRoute(builder: (context) => const StudentDetailsScreen()));
+            if (title == 'Leave Intimation') {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const StudentDetailsScreen(),
+                ),
+              );
             }
           },
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Container(
-                width: 40,
-                height: 40,
-                decoration: BoxDecoration(
-                  color: const Color(0xFFE0E7FF),
-                  borderRadius: BorderRadius.circular(10),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                  width: 40,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFE0E7FF),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Icon(icon, size: 24, color: const Color(0xFF296FD8)),
                 ),
-                child: Icon(icon, color: const Color(0xFF296FD8)),
-              ),
-              const SizedBox(height: 12),
-              Text(
-                title,
-                style: const TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600,
-                  color: Color(0xFF1E293B),
+
+                const SizedBox(height: 8),
+
+                Flexible(
+                  child: Text(
+                    title,
+                    maxLines: 2,
+                    textAlign: TextAlign.center,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
