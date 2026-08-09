@@ -132,6 +132,7 @@ class PdfGeneratorService {
                 pw.Text('OFFICE : 04639 - 242482', style: pw.TextStyle(font: englishFont, fontSize: 10)),
                 pw.Text('FAX : 243188', style: pw.TextStyle(font: englishFont, fontSize: 10)),
                 pw.Divider(thickness: 1),
+                pw.SizedBox(height: 10),
                 
                 pw.Row(
                   mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
@@ -140,53 +141,53 @@ class PdfGeneratorService {
                     pw.Column(
                       crossAxisAlignment: pw.CrossAxisAlignment.start,
                       children: [
-                        pw.Text('Dr. G. Wiselin Jiji', style: pw.TextStyle(font: englishBold, fontSize: 11)),
-                        pw.Text('PRINCIPAL', style: pw.TextStyle(font: englishBold, fontSize: 11)),
+                        pw.Text('Dr. G. Wiselin Jiji', style: pw.TextStyle(font: englishBold, fontSize: 13)),
+                        pw.Text('PRINCIPAL', style: pw.TextStyle(font: englishBold, fontSize: 13)),
                       ]
                     ),
                     pw.Row(
                       children: [
                         pwDateLabel,
-                        pw.Text(date, style: pw.TextStyle(font: englishBold, fontSize: 12)),
+                        pw.Text(date, style: pw.TextStyle(font: englishBold, fontSize: 13)),
                       ]
                     ),
                   ],
                 ),
-                pw.SizedBox(height: 20),
+                pw.SizedBox(height: 30),
 
                 pwToLabel,
                 pw.Padding(
                   padding: const pw.EdgeInsets.only(left: 30, top: 2),
                   child: pw.Text(
-                    studentName + ',\n' + studentAddress.replaceAll(', ', ',\n'), 
+                    studentName + ',\n' + studentAddress, 
                     style: pw.TextStyle(font: englishFont, fontSize: 12, lineSpacing: 2)
                   ),
                 ),
-                pw.SizedBox(height: 20),
+                pw.SizedBox(height: 30),
 
                 pwSalutation,
-                pw.SizedBox(height: 10),
+                pw.SizedBox(height: 15),
 
                 pwPara1,
                 pw.SizedBox(height: 15),
 
                 pwPara2,
-                pw.SizedBox(height: 20),
+                pw.SizedBox(height: 40),
 
                 pw.Center(child: pwThanks),
-                pw.SizedBox(height: 20),
+                pw.SizedBox(height: 30),
 
                 pw.Align(alignment: pw.Alignment.centerRight, child: pwYours),
-                pw.SizedBox(height: 60),
+                pw.Spacer(),
 
                 pw.Row(
                   mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
-                  crossAxisAlignment: pw.CrossAxisAlignment.start,
+                  crossAxisAlignment: pw.CrossAxisAlignment.end,
                   children: [
                     pw.Column(
                       crossAxisAlignment: pw.CrossAxisAlignment.center,
                       children: [
-                        pw.Text('Dr. S. Selvi, Prof & HOD/IT', style: pw.TextStyle(font: englishBold, fontSize: 10)),
+                        pw.Text('Dr. S. Selvi, Prof & HOD/IT', style: pw.TextStyle(font: englishBold, fontSize: 11)),
                         pw.SizedBox(height: 2),
                         pwHodTitle,
                       ]
@@ -196,7 +197,7 @@ class PdfGeneratorService {
                       children: [
                         pw.Text(
                           (advisor.isNotEmpty ? advisor : 'Ms. K. Ramya Thamizharasi, AP/IT').replaceAll(' & ', '\n'), 
-                          style: pw.TextStyle(font: englishBold, fontSize: 10),
+                          style: pw.TextStyle(font: englishBold, fontSize: 11),
                           textAlign: pw.TextAlign.center,
                         ),
                         pw.SizedBox(height: 2),
@@ -206,7 +207,7 @@ class PdfGeneratorService {
                     pw.Column(
                       crossAxisAlignment: pw.CrossAxisAlignment.center,
                       children: [
-                        pw.Text('Dr. G. Wiselin Jiji', style: pw.TextStyle(font: englishBold, fontSize: 10)),
+                        pw.Text('Dr. G. Wiselin Jiji', style: pw.TextStyle(font: englishBold, fontSize: 11)),
                         pw.SizedBox(height: 2),
                         pwPrinTitle,
                       ]
@@ -251,7 +252,7 @@ class PdfGeneratorService {
                           pw.Text('To', style: pw.TextStyle(font: englishFont, fontSize: 10)),
                           pw.SizedBox(height: 10),
                           pw.Text(studentName + ',', style: pw.TextStyle(font: englishFont, fontSize: 10)),
-                          pw.Text(studentAddress.replaceAll(', ', ',\n'), style: pw.TextStyle(font: englishFont, fontSize: 10, lineSpacing: 2)),
+                          pw.Text(studentAddress, style: pw.TextStyle(font: englishFont, fontSize: 10, lineSpacing: 2)),
                         ]
                       )
                     ),

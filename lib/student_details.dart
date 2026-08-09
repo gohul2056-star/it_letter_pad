@@ -4,6 +4,7 @@ import 'package:calendar_date_picker2/calendar_date_picker2.dart';
 import 'package:intl/intl.dart';
 import 'attendance_screen.dart';
 import 'pdf_generator_service.dart';
+import 'excel_storage_service.dart';
 
 class StudentDetailsScreen extends StatefulWidget {
   const StudentDetailsScreen({super.key});
@@ -16,6 +17,7 @@ class _StudentDetailsScreenState extends State<StudentDetailsScreen> {
   String? _selectedYear;
   Uint8List? _excelBytes;
   final PdfGeneratorService _pdfService = PdfGeneratorService();
+  final ExcelStorageService _storageService = ExcelStorageService();
   List<DateTime?> _selectedDates = [];
   final TextEditingController _advisorController = TextEditingController(text: '');
   
@@ -29,6 +31,11 @@ class _StudentDetailsScreenState extends State<StudentDetailsScreen> {
     'Mrs. A. Shilba',
   ];
   List<String> _selectedStaff = [];
+
+  @override
+  void initState() {
+    super.initState();
+  }
 
   @override
   void dispose() {
@@ -70,7 +77,7 @@ class _StudentDetailsScreenState extends State<StudentDetailsScreen> {
               ),
               child: PopupMenuButton<String>(
                 initialValue: _selectedYear,
-                offset: const Offset(0, 56), // Open exactly below the box
+                offset: const Offset(0, 56),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                 color: Colors.white,
                 elevation: 4,
@@ -81,16 +88,16 @@ class _StudentDetailsScreenState extends State<StudentDetailsScreen> {
                 onSelected: (value) async {
                   setState(() {
                     _selectedYear = value;
+                    _excelBytes = null; 
                   });
-                  // Trigger file picker
-                  Uint8List? bytes = await _pdfService.pickExcelFile();
+                  Uint8List? bytes = await _storageService.loadExcelFile(value);
                   if (bytes != null) {
                     setState(() {
                       _excelBytes = bytes;
                     });
                     if (mounted) {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Excel file selected successfully!')),
+                        SnackBar(content: Text('Loaded existing Excel file for Year $value!')),
                       );
                     }
                   }
@@ -125,7 +132,49 @@ class _StudentDetailsScreenState extends State<StudentDetailsScreen> {
                 ),
               ),
             ),
-            const SizedBox(height: 20),
+            if (_selectedYear != null) ...[
+              const SizedBox(height: 12),
+              Row(
+                children: [
+                  Expanded(
+                    child: ElevatedButton.icon(
+                      icon: const Icon(Icons.upload_file),
+                      label: Text(_excelBytes != null ? 'Update Excel File' : 'Upload Excel File'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFFF1F5F9),
+                        foregroundColor: const Color(0xFF1E293B),
+                        elevation: 0,
+                      ),
+                      onPressed: () async {
+                        Uint8List? bytes = await _pdfService.pickExcelFile();
+                        if (bytes != null) {
+                          await _storageService.saveExcelFile(_selectedYear!, bytes);
+                          setState(() {
+                            _excelBytes = bytes;
+                          });
+                          if (mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text('Excel file saved for Year $_selectedYear!')),
+                            );
+                          }
+                        }
+                      },
+                    ),
+                  ),
+                ],
+              ),
+              if (_excelBytes != null)
+                Padding(
+                  padding: const EdgeInsets.only(top: 8.0),
+                  child: Row(
+                    children: const [
+                      Icon(Icons.check_circle, color: Colors.green, size: 16),
+                      SizedBox(width: 4),
+                      Text('Excel data is ready', style: TextStyle(color: Colors.green, fontSize: 12)),
+                    ],
+                  ),
+                ),
+            ],
             const SizedBox(height: 20),
             const Text('Select Dates', style: TextStyle(fontWeight: FontWeight.w600, color: Color(0xFF1E293B))),
             const SizedBox(height: 8),
@@ -284,7 +333,7 @@ class _StudentDetailsScreenState extends State<StudentDetailsScreen> {
                   context: context,
                   builder: (context) => AlertDialog(
                     title: const Text('Action Required'),
-                    content: const Text('Please select an Excel file first (re-select the year to trigger picker).'),
+                    content: const Text('Please upload an Excel file for the selected year.'),
                     actions: [
                       TextButton(
                         onPressed: () => Navigator.pop(context),
@@ -359,6 +408,4 @@ class _StudentDetailsScreenState extends State<StudentDetailsScreen> {
       ),
     );
   }
-
 }
-
