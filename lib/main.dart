@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'student_details.dart';
+import 'report_card/screens/report_card_screen.dart';
+import 'history_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -68,11 +70,52 @@ class DashboardScreen extends StatelessWidget {
         shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(bottom: Radius.circular(20)),
         ),
-        leading: IconButton(
-          icon: const Icon(Icons.menu, color: Colors.white),
-          onPressed: () {},
-        ),
+        iconTheme: const IconThemeData(color: Colors.white),
         toolbarHeight: 70,
+      ),
+      drawer: Drawer(
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: [
+            DrawerHeader(
+              decoration: const BoxDecoration(
+                color: Color(0xFF296FD8),
+              ),
+              child: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Image.asset('assets/icons/SAECO.png', height: 80, width: 80),
+                    const SizedBox(height: 4),
+                    const Text(
+                      'Department of\n Information Technology',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            ListTile(
+              leading: const Icon(Icons.history, color: Color(0xFF296FD8)),
+              title: const Text('History'),
+              onTap: () {
+                Navigator.pop(context); // Close drawer
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const HistoryScreen(),
+                  ),
+                );
+              },
+            ),
+          ],
+        ),
       ),
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
@@ -407,6 +450,13 @@ class DashboardScreen extends StatelessWidget {
                 context,
                 MaterialPageRoute(
                   builder: (context) => const StudentDetailsScreen(),
+                ),
+              );
+            } else if (title == 'Report Card') {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const ReportCardExcelScreen(),
                 ),
               );
             }

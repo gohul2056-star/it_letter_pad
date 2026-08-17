@@ -20,15 +20,16 @@ class _StudentDetailsScreenState extends State<StudentDetailsScreen> {
   final ExcelStorageService _storageService = ExcelStorageService();
   List<DateTime?> _selectedDates = [];
   final TextEditingController _advisorController = TextEditingController(text: '');
-  
+
   final List<String> _staffOptions = [
-    'Dr. R. Chithra Devi',
-    'Mrs. K.P. Ramya',
-    'Ms. K. Ramya Thamizharasi',
-    'Mrs. N. Rajeswari',
-    'Mr. J.Amos Viyanikaran',
-    'Mrs. M. Petchithai',
-    'Mrs. A. Shilba',
+    'Mr. J.Amos Viyanikaran, AP/IT',
+    'Dr. R. Chithra Devi, ASP/IT',
+    'Mrs. N. Rajeswari, AP/IT',
+    'Mrs. K.P. Ramya, AP/IT',
+    'Ms. K. Ramya Thamizharasi, AP/IT',
+    'Mrs. N. Rajeswari, AP/IT',
+    'Mrs. M. Petchithai, AP/IT',
+    'Mrs. A. Shilba, AP/IT',
   ];
   List<String> _selectedStaff = [];
 
@@ -90,7 +91,14 @@ class _StudentDetailsScreenState extends State<StudentDetailsScreen> {
                     _selectedYear = value;
                     _excelBytes = null; 
                   });
-                  Uint8List? bytes = await _storageService.loadExcelFile(value);
+                  final history = await _storageService.getHistory();
+                  final matchingFiles = history.where((f) => f.originalFileName == 'Leave_Intimation_Year_$value' && f.fileType == 'Leave Intimation');
+                  
+                  Uint8List? bytes;
+                  if (matchingFiles.isNotEmpty) {
+                    bytes = await _storageService.loadExcelFile(matchingFiles.first.id);
+                  }
+                  
                   if (bytes != null) {
                     setState(() {
                       _excelBytes = bytes;
@@ -148,7 +156,7 @@ class _StudentDetailsScreenState extends State<StudentDetailsScreen> {
                       onPressed: () async {
                         Uint8List? bytes = await _pdfService.pickExcelFile();
                         if (bytes != null) {
-                          await _storageService.saveExcelFile(_selectedYear!, bytes);
+                          await _storageService.saveExcelFile('Leave_Intimation_Year_$_selectedYear', 'Leave Intimation', bytes);
                           setState(() {
                             _excelBytes = bytes;
                           });
