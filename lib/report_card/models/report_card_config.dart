@@ -11,6 +11,7 @@ class ReportCardConfig {
   int workingDays;
   List<String> advisors;
   List<SubjectMapping> subjectMappings;
+  bool includePlacement;
 
   ReportCardConfig({
     this.periodicalTestNumber = '',
@@ -21,6 +22,7 @@ class ReportCardConfig {
     this.fromDate,
     this.toDate,
     this.workingDays = 0,
+    this.includePlacement = false,
     List<String>? advisors,
     List<SubjectMapping>? subjectMappings,
   }) : advisors = advisors ?? [],

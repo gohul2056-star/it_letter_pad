@@ -1,6 +1,6 @@
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
-import 'package:excel/excel.dart' hide Border;
+import 'package:excel/excel.dart' hide Border, TextSpan;
 import 'package:printing/printing.dart';
 import 'package:pdf/pdf.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -566,57 +566,22 @@ class _EditableLetterViewState extends State<EditableLetterView> {
                 Text('ஐயா,', style: GoogleFonts.notoSansTamil(fontSize: 14, fontStyle: FontStyle.italic, color: Colors.black)),
                 const SizedBox(height: 5), // Reduced
 
-                Wrap(
-                  crossAxisAlignment: WrapCrossAlignment.center,
-                  children: [
-                    Text('      எங்களது கல்லூரியில் இறுதி ஆண்டு Information Technology துறையில் பயிலும் தங்களது மகன்/மகள் ', style: GoogleFonts.notoSansTamil(fontSize: 13, height: 2.0, color: Colors.black)),
-                    IntrinsicWidth(
-                      child: ConstrainedBox(
-                        constraints: const BoxConstraints(minWidth: 50),
-                        child: TextField(
-                          controller: _nameController,
-                          textAlign: TextAlign.center,
-                          style: const TextStyle(fontSize: 13, height: 2.0, color: Colors.black),
-                          decoration: const InputDecoration(border: InputBorder.none, isDense: true, contentPadding: EdgeInsets.zero),
-                        ),
-                      ),
-                    ),
-                    Text(' அவர்களின் கல்லூரி வருகைப்பதிவு ', style: GoogleFonts.notoSansTamil(fontSize: 13, height: 2.0, color: Colors.black)),
-                    IntrinsicWidth(
-                      child: ConstrainedBox(
-                        constraints: const BoxConstraints(minWidth: 30),
-                        child: TextField(
-                          controller: _attController,
-                          textAlign: TextAlign.center,
-                          style: const TextStyle(fontSize: 13, height: 2.0, color: Colors.black),
-                          decoration: const InputDecoration(border: InputBorder.none, isDense: true, contentPadding: EdgeInsets.zero),
-                        ),
-                      ),
-                    ),
-                    Text('% ஆக உள்ளது. (', style: GoogleFonts.notoSansTamil(fontSize: 13, height: 2.0, color: Colors.black)),
-                    IntrinsicWidth(
-                      child: ConstrainedBox(
-                        constraints: const BoxConstraints(minWidth: 40),
-                        child: TextField(
-                          controller: _fromDateController,
-                          style: const TextStyle(fontSize: 13, height: 2.0, color: Colors.black),
-                          decoration: const InputDecoration(border: InputBorder.none, isDense: true, contentPadding: EdgeInsets.zero),
-                        ),
-                      ),
-                    ),
-                    Text(' முதல் ', style: GoogleFonts.notoSansTamil(fontSize: 13, height: 2.0, color: Colors.black)),
-                    IntrinsicWidth(
-                      child: ConstrainedBox(
-                        constraints: const BoxConstraints(minWidth: 40),
-                        child: TextField(
-                          controller: _toDateController,
-                          style: const TextStyle(fontSize: 13, height: 2.0, color: Colors.black),
-                          decoration: const InputDecoration(border: InputBorder.none, isDense: true, contentPadding: EdgeInsets.zero),
-                        ),
-                      ),
-                    ),
-                    Text(' வரை).', style: GoogleFonts.notoSansTamil(fontSize: 13, height: 2.0, color: Colors.black)),
-                  ],
+                Text.rich(
+                  TextSpan(
+                    style: GoogleFonts.notoSansTamil(fontSize: 13, height: 2.0, color: Colors.black),
+                    children: [
+                      const TextSpan(text: '      எங்களது கல்லூரியில் இறுதி ஆண்டு Information Technology துறையில் பயிலும் தங்களது மகன்/மகள் '),
+                      TextSpan(text: _nameController.text),
+                      const TextSpan(text: ' அவர்களின் கல்லூரி வருகைப்பதிவு '),
+                      TextSpan(text: _attController.text),
+                      const TextSpan(text: '% ஆக உள்ளது. ('),
+                      TextSpan(text: _fromDateController.text),
+                      const TextSpan(text: ' முதல் '),
+                      TextSpan(text: _toDateController.text),
+                      const TextSpan(text: ' வரை).'),
+                    ],
+                  ),
+                  textAlign: TextAlign.justify,
                 ),
                 const SizedBox(height: 8), // Reduced
 
@@ -634,41 +599,51 @@ class _EditableLetterViewState extends State<EditableLetterView> {
                 const SizedBox(height: 20), // Reduced from 30
 
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
                     Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          const Text('Dr. S. Selvi, Prof & HOD/IT', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 11, color: Colors.black), textAlign: TextAlign.center),
-                          Text('துறைத்தலைவர்', style: GoogleFonts.notoSansTamil(fontSize: 11, color: Colors.black), textAlign: TextAlign.center),
-                        ]
-                      ),
+                      flex: 1,
+                      child: Align(
+                        alignment: Alignment.centerLeft,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            const Text('Dr. S. Selvi, Prof & HOD/IT', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 11, color: Colors.black), textAlign: TextAlign.center),
+                            Text('துறைத்தலைவர்', style: GoogleFonts.notoSansTamil(fontSize: 11, color: Colors.black), textAlign: TextAlign.center),
+                          ]
+                        ),
+                      )
                     ),
                     Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          TextField(
-                            controller: _advisorController,
-                            maxLines: null,
-                            textAlign: TextAlign.center,
-                            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 11, color: Colors.black),
-                            decoration: const InputDecoration(border: InputBorder.none, isDense: true, contentPadding: EdgeInsets.zero),
-                          ),
-                          Text('ஆலோசகர்', style: GoogleFonts.notoSansTamil(fontSize: 11, color: Colors.black), textAlign: TextAlign.center),
-                        ]
-                      ),
+                      flex: 1,
+                      child: Center(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            TextField(
+                              controller: _advisorController,
+                              maxLines: null,
+                              textAlign: TextAlign.center,
+                              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 11, color: Colors.black),
+                              decoration: const InputDecoration(border: InputBorder.none, isDense: true, contentPadding: EdgeInsets.zero),
+                            ),
+                            Text('ஆலோசகர்', style: GoogleFonts.notoSansTamil(fontSize: 11, color: Colors.black), textAlign: TextAlign.center),
+                          ]
+                        ),
+                      )
                     ),
                     Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          const Text('Dr. G. Wiselin Jiji', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 11, color: Colors.black), textAlign: TextAlign.center),
-                          Text('முதல்வர்', style: GoogleFonts.notoSansTamil(fontSize: 11, color: Colors.black), textAlign: TextAlign.center),
-                        ]
-                      ),
+                      flex: 1,
+                      child: Align(
+                        alignment: Alignment.centerRight,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            const Text('Dr. G. Wiselin Jiji', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 11, color: Colors.black), textAlign: TextAlign.center),
+                            Text('முதல்வர்', style: GoogleFonts.notoSansTamil(fontSize: 11, color: Colors.black), textAlign: TextAlign.center),
+                          ]
+                        ),
+                      )
                     ),
                   ]
                 ),
@@ -677,67 +652,80 @@ class _EditableLetterViewState extends State<EditableLetterView> {
                 const Divider(thickness: 1.5, color: Colors.black),
                 
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Expanded(
-                      flex: 2,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text('From:', style: TextStyle(fontSize: 11, color: Colors.black)),
-                          const SizedBox(height: 10),
-                          Padding(
-                            padding: const EdgeInsets.only(left: 20),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: const [
-                                Text('The Principal', style: TextStyle(fontSize: 11, color: Colors.black)),
-                                Text('Dr. Sivanthi Aditanar College of Engineering', style: TextStyle(fontSize: 11, color: Colors.black)),
-                                Text('Tiruchendur 628215', style: TextStyle(fontSize: 11, color: Colors.black)),
-                                Text('Tuticorin.', style: TextStyle(fontSize: 11, color: Colors.black)),
-                              ]
+                      flex: 1,
+                      child: Align(
+                        alignment: Alignment.centerLeft,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text('From:', style: TextStyle(fontSize: 11, color: Colors.black)),
+                            const SizedBox(height: 10),
+                            Padding(
+                              padding: const EdgeInsets.only(left: 20),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: const [
+                                  Text('The Principal', style: TextStyle(fontSize: 11, color: Colors.black)),
+                                  Text('Dr. Sivanthi Aditanar College of Engineering', style: TextStyle(fontSize: 11, color: Colors.black)),
+                                  Text('Tiruchendur 628215', style: TextStyle(fontSize: 11, color: Colors.black)),
+                                  Text('Tuticorin.', style: TextStyle(fontSize: 11, color: Colors.black)),
+                                ]
+                              )
                             )
-                          )
-                        ]
-                      )
-                    ),
-                    Expanded(
-                      flex: 2,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text('To', style: TextStyle(fontSize: 11, color: Colors.black)),
-                          const SizedBox(height: 10),
-                          TextField(
-                            controller: _nameController,
-                            style: const TextStyle(fontSize: 11, height: 1.5, color: Colors.black),
-                            decoration: const InputDecoration(border: InputBorder.none, isDense: true, contentPadding: EdgeInsets.zero),
-                          ),
-                          TextField(
-                            controller: _addressController,
-                            maxLines: null,
-                            style: const TextStyle(fontSize: 11, height: 1.5, color: Colors.black),
-                            decoration: const InputDecoration(border: InputBorder.none, isDense: true, contentPadding: EdgeInsets.zero),
-                          ),
-                        ]
+                          ]
+                        )
                       )
                     ),
                     Expanded(
                       flex: 1,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          const Text('STAMP', style: TextStyle(fontSize: 11, color: Colors.black)),
-                          const SizedBox(height: 5),
-                          Container(
-                            width: 40,
-                            height: 50,
-                            decoration: BoxDecoration(
-                              border: Border.all(color: Colors.black, width: 1)
+                      child: Center(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text('To', style: TextStyle(fontSize: 11, color: Colors.black)),
+                            const SizedBox(height: 10),
+                            Padding(
+                              padding: const EdgeInsets.only(left: 20),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  TextField(
+                                    controller: _nameController,
+                                    style: const TextStyle(fontSize: 11, height: 1.5, color: Colors.black),
+                                    decoration: const InputDecoration(border: InputBorder.none, isDense: true, contentPadding: EdgeInsets.zero),
+                                  ),
+                                  TextField(
+                                    controller: _addressController,
+                                    maxLines: null,
+                                    style: const TextStyle(fontSize: 11, height: 1.5, color: Colors.black),
+                                    decoration: const InputDecoration(border: InputBorder.none, isDense: true, contentPadding: EdgeInsets.zero),
+                                  ),
+                                ]
+                              )
                             )
-                          )
-                        ]
+                          ]
+                        )
+                      )
+                    ),
+                    Expanded(
+                      flex: 1,
+                      child: Align(
+                        alignment: Alignment.centerRight,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            const Text('STAMP', style: TextStyle(fontSize: 11, color: Colors.black)),
+                            const SizedBox(height: 5),
+                            Container(
+                              width: 40,
+                              height: 50,
+                              decoration: BoxDecoration(border: Border.all(color: Colors.black, width: 1))
+                            )
+                          ]
+                        )
                       )
                     )
                   ]

@@ -74,45 +74,62 @@ class DashboardScreen extends StatelessWidget {
         toolbarHeight: 70,
       ),
       drawer: Drawer(
-        child: ListView(
-          padding: EdgeInsets.zero,
+        child: Column(
           children: [
-            DrawerHeader(
-              decoration: const BoxDecoration(
-                color: Color(0xFF296FD8),
-              ),
-              child: Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Image.asset('assets/icons/SAECO.png', height: 80, width: 80),
-                    const SizedBox(height: 4),
-                    const Text(
-                      'Department of\n Information Technology',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
+            Expanded(
+              child: ListView(
+                padding: EdgeInsets.zero,
+                children: [
+                  DrawerHeader(
+                    decoration: const BoxDecoration(
+                      color: Color(0xFF296FD8),
+                    ),
+                    child: Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Image.asset('assets/icons/SAECO.png', height: 80, width: 80),
+                          const SizedBox(height: 4),
+                          const Text(
+                            'Department of\n Information Technology',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                  ],
-                ),
+                  ),
+                  ListTile(
+                    leading: const Icon(Icons.history, color: Color(0xFF296FD8)),
+                    title: const Text('History'),
+                    onTap: () {
+                      Navigator.pop(context); // Close drawer
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const HistoryScreen(),
+                        ),
+                      );
+                    },
+                  ),
+                ],
               ),
             ),
-            ListTile(
-              leading: const Icon(Icons.history, color: Color(0xFF296FD8)),
-              title: const Text('History'),
-              onTap: () {
-                Navigator.pop(context); // Close drawer
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const HistoryScreen(),
-                  ),
-                );
-              },
+            const Padding(
+              padding: EdgeInsets.all(16.0),
+              child: Text(
+                'developed by luho',
+                style: TextStyle(
+                  color: Colors.grey,
+                  fontSize: 12,
+                ),
+                textAlign: TextAlign.center,
+              ),
             ),
           ],
         ),

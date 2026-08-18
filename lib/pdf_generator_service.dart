@@ -104,13 +104,13 @@ class PdfGeneratorService {
           style: tamilStyle12,
           children: [
             const p.TextSpan(text: '\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0எங்களது கல்லூரியில் இறுதி ஆண்டு Information Technology துறையில் பயிலும் தங்களது மகன்/மகள் '),
-            p.TextSpan(text: studentName, style: englishStyle),
+            p.TextSpan(text: studentName, style: tamilStyle12),
             const p.TextSpan(text: ' அவர்களின் கல்லூரி வருகைப்பதிவு '),
-            p.TextSpan(text: attendance, style: englishStyle),
+            p.TextSpan(text: attendance, style: tamilStyle12),
             const p.TextSpan(text: '% ஆக உள்ளது. ('),
-            p.TextSpan(text: fromDate, style: englishStyle),
+            p.TextSpan(text: fromDate, style: tamilStyle12),
             const p.TextSpan(text: ' முதல் '),
-            p.TextSpan(text: toDate, style: englishStyle),
+            p.TextSpan(text: toDate, style: tamilStyle12),
             const p.TextSpan(text: ' வரை).'),
           ]
         ),
@@ -181,36 +181,52 @@ class PdfGeneratorService {
                 pw.Spacer(),
 
                 pw.Row(
-                  mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
                   crossAxisAlignment: pw.CrossAxisAlignment.end,
                   children: [
-                    pw.Column(
-                      crossAxisAlignment: pw.CrossAxisAlignment.center,
-                      children: [
-                        pw.Text('Dr. S. Selvi, Prof & HOD/IT', style: pw.TextStyle(font: englishFont, fontSize: 11)),
-                        pw.SizedBox(height: 2),
-                        pwHodTitle,
-                      ]
-                    ),
-                    pw.Column(
-                      crossAxisAlignment: pw.CrossAxisAlignment.center,
-                      children: [
-                        pw.Text(
-                          (advisor.isNotEmpty ? advisor : 'Ms. K. Ramya Thamizharasi, AP/IT').replaceAll(' & ', '\n'), 
-                          style: pw.TextStyle(font: englishFont, fontSize: 11),
-                          textAlign: pw.TextAlign.center,
+                    pw.Expanded(
+                      flex: 1,
+                      child: pw.Align(
+                        alignment: pw.Alignment.centerLeft,
+                        child: pw.Column(
+                          crossAxisAlignment: pw.CrossAxisAlignment.center,
+                          children: [
+                            pw.Text('Dr. S. Selvi, Prof & HOD/IT', style: pw.TextStyle(font: englishFont, fontSize: 11)),
+                            pw.SizedBox(height: 2),
+                            pwHodTitle,
+                          ]
                         ),
-                        pw.SizedBox(height: 2),
-                        pwAdvTitle,
-                      ]
+                      )
                     ),
-                    pw.Column(
-                      crossAxisAlignment: pw.CrossAxisAlignment.center,
-                      children: [
-                        pw.Text('Dr. G. Wiselin Jiji', style: pw.TextStyle(font: englishFont, fontSize: 11)),
-                        pw.SizedBox(height: 2),
-                        pwPrinTitle,
-                      ]
+                    pw.Expanded(
+                      flex: 1,
+                      child: pw.Center(
+                        child: pw.Column(
+                          crossAxisAlignment: pw.CrossAxisAlignment.center,
+                          children: [
+                            pw.Text(
+                              (advisor.isNotEmpty ? advisor : 'Ms. K. Ramya Thamizharasi, AP/IT').replaceAll(' & ', '\n'), 
+                              style: pw.TextStyle(font: englishFont, fontSize: 11),
+                              textAlign: pw.TextAlign.center,
+                            ),
+                            pw.SizedBox(height: 2),
+                            pw.Center(child: pwAdvTitle),
+                          ]
+                        ),
+                      )
+                    ),
+                    pw.Expanded(
+                      flex: 1,
+                      child: pw.Align(
+                        alignment: pw.Alignment.centerRight,
+                        child: pw.Column(
+                          crossAxisAlignment: pw.CrossAxisAlignment.center,
+                          children: [
+                            pw.Text('Dr. G. Wiselin Jiji', style: pw.TextStyle(font: englishFont, fontSize: 11)),
+                            pw.SizedBox(height: 2),
+                            pwPrinTitle,
+                          ]
+                        ),
+                      )
                     ),
                   ]
                 ),
@@ -219,56 +235,71 @@ class PdfGeneratorService {
                 pw.Divider(thickness: 1.5),
                 
                 pw.Row(
-                  mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
                   crossAxisAlignment: pw.CrossAxisAlignment.start,
                   children: [
                     pw.Expanded(
-                      flex: 2,
-                      child: pw.Column(
-                        crossAxisAlignment: pw.CrossAxisAlignment.start,
-                        children: [
-                          pw.Text('From:', style: pw.TextStyle(font: englishFont, fontSize: 10)),
-                          pw.SizedBox(height: 10),
-                          pw.Padding(
-                            padding: const pw.EdgeInsets.only(left: 20),
-                            child: pw.Column(
-                              crossAxisAlignment: pw.CrossAxisAlignment.start,
-                              children: [
-                                pw.Text('The Principal', style: pw.TextStyle(font: englishFont, fontSize: 10)),
-                                pw.Text('Dr. Sivanthi Aditanar College of Engineering', style: pw.TextStyle(font: englishFont, fontSize: 10)),
-                                pw.Text('Tiruchendur 628215', style: pw.TextStyle(font: englishFont, fontSize: 10)),
-                                pw.Text('Tuticorin.', style: pw.TextStyle(font: englishFont, fontSize: 10)),
-                              ]
+                      flex: 1,
+                      child: pw.Align(
+                        alignment: pw.Alignment.centerLeft,
+                        child: pw.Column(
+                          crossAxisAlignment: pw.CrossAxisAlignment.start,
+                          children: [
+                            pw.Text('From:', style: pw.TextStyle(font: englishFont, fontSize: 10)),
+                            pw.SizedBox(height: 10),
+                            pw.Padding(
+                              padding: const pw.EdgeInsets.only(left: 20),
+                              child: pw.Column(
+                                crossAxisAlignment: pw.CrossAxisAlignment.start,
+                                children: [
+                                  pw.Text('The Principal', style: pw.TextStyle(font: englishFont, fontSize: 10)),
+                                  pw.Text('Dr. Sivanthi Aditanar College of Engineering', style: pw.TextStyle(font: englishFont, fontSize: 10)),
+                                  pw.Text('Tiruchendur 628215', style: pw.TextStyle(font: englishFont, fontSize: 10)),
+                                  pw.Text('Tuticorin.', style: pw.TextStyle(font: englishFont, fontSize: 10)),
+                                ]
+                              )
                             )
-                          )
-                        ]
-                      )
-                    ),
-                    pw.Expanded(
-                      flex: 2,
-                      child: pw.Column(
-                        crossAxisAlignment: pw.CrossAxisAlignment.start,
-                        children: [
-                          pw.Text('To', style: pw.TextStyle(font: englishFont, fontSize: 10)),
-                          pw.SizedBox(height: 10),
-                          pw.Text(studentName + ',', style: pw.TextStyle(font: englishFont, fontSize: 10)),
-                          pw.Text(studentAddress, style: pw.TextStyle(font: englishFont, fontSize: 10)),
-                        ]
+                          ]
+                        )
                       )
                     ),
                     pw.Expanded(
                       flex: 1,
-                      child: pw.Column(
-                        crossAxisAlignment: pw.CrossAxisAlignment.center,
-                        children: [
-                          pw.Text('STAMP', style: pw.TextStyle(font: englishFont, fontSize: 10)),
-                          pw.SizedBox(height: 5),
-                          pw.Container(
-                            width: 40,
-                            height: 50,
-                            decoration: pw.BoxDecoration(border: pw.Border.all(color: PdfColors.black, width: 1))
-                          )
-                        ]
+                      child: pw.Center(
+                        child: pw.Column(
+                          crossAxisAlignment: pw.CrossAxisAlignment.start,
+                          children: [
+                            pw.Text('To', style: pw.TextStyle(font: englishFont, fontSize: 10)),
+                            pw.SizedBox(height: 10),
+                            pw.Padding(
+                              padding: const pw.EdgeInsets.only(left: 20),
+                              child: pw.Column(
+                                crossAxisAlignment: pw.CrossAxisAlignment.start,
+                                children: [
+                                  pw.Text(studentName + ',', style: pw.TextStyle(font: englishFont, fontSize: 10)),
+                                  pw.Text(studentAddress, style: pw.TextStyle(font: englishFont, fontSize: 10)),
+                                ]
+                              )
+                            )
+                          ]
+                        )
+                      )
+                    ),
+                    pw.Expanded(
+                      flex: 1,
+                      child: pw.Align(
+                        alignment: pw.Alignment.centerRight,
+                        child: pw.Column(
+                          crossAxisAlignment: pw.CrossAxisAlignment.center,
+                          children: [
+                            pw.Text('STAMP', style: pw.TextStyle(font: englishFont, fontSize: 10)),
+                            pw.SizedBox(height: 5),
+                            pw.Container(
+                              width: 40,
+                              height: 50,
+                              decoration: pw.BoxDecoration(border: pw.Border.all(color: PdfColors.black, width: 1))
+                            )
+                          ]
+                        )
                       )
                     )
                   ]

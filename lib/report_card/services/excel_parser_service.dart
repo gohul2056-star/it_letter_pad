@@ -33,7 +33,7 @@ class ExcelParserService {
         'name', 'student name',
         'class', 'date', 'total mark', 'total marks', 'scored mark', 'scored marks',
         'rank', 'attendance', 'attendance %', 'absent', 'days absent', 'absent days', 
-        'from date', 'from', 'to date', 'to', 'remarks', 'address'
+        'from date', 'from', 'to date', 'to', 'remarks', 'address', 'placement'
       };
 
       for (var cell in headerRow) {
@@ -102,7 +102,7 @@ class ExcelParserService {
         'name', 'student name',
         'class', 'date', 'total mark', 'total marks', 'scored mark', 'scored marks',
         'rank', 'attendance', 'attendance %', 'absent', 'days absent', 'absent days', 
-        'from date', 'from', 'to date', 'to', 'remarks', 'address'
+        'from date', 'from', 'to date', 'to', 'remarks', 'address', 'placement'
       };
 
       for (int r = headerRowIndex + 1; r < sheet.rows.length; r++) {
@@ -138,6 +138,8 @@ class ExcelParserService {
         String daysAbsentStr = getCellVal('absent');
         if (daysAbsentStr.isEmpty) daysAbsentStr = getCellVal('days absent');
         int daysAbsent = int.tryParse(daysAbsentStr) ?? 0;
+
+        String placementMark = getCellVal('placement');
 
         String classAndSem = '';
         String date = '';
@@ -224,6 +226,7 @@ class ExcelParserService {
           address: address,
           daysAbsent: daysAbsent,
           subjects: subjects,
+          placementMark: placementMark.isNotEmpty ? placementMark : null,
           availableSubjectCodes: availableSubjectCodes,
         ));
       }

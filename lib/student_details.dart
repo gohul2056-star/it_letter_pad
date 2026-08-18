@@ -24,7 +24,6 @@ class _StudentDetailsScreenState extends State<StudentDetailsScreen> {
   final List<String> _staffOptions = [
     'Mr. J.Amos Viyanikaran, AP/IT',
     'Dr. R. Chithra Devi, ASP/IT',
-    'Mrs. N. Rajeswari, AP/IT',
     'Mrs. K.P. Ramya, AP/IT',
     'Ms. K. Ramya Thamizharasi, AP/IT',
     'Mrs. N. Rajeswari, AP/IT',
@@ -36,6 +35,26 @@ class _StudentDetailsScreenState extends State<StudentDetailsScreen> {
   @override
   void initState() {
     super.initState();
+    _loadInitialBatchAndExcel();
+  }
+
+  Future<void> _loadInitialBatchAndExcel() async {
+    final history = await _storageService.getHistory();
+    history.sort((a, b) => b.dateAdded.compareTo(a.dateAdded));
+    final leaveFiles = history.where((f) => f.fileType == 'Leave Intimation');
+    if (leaveFiles.isNotEmpty) {
+      final latest = leaveFiles.first;
+      if (latest.originalFileName.startsWith('Leave_Intimation_Year_')) {
+        final batch = latest.originalFileName.split('_').last;
+        final bytes = await _storageService.loadExcelFile(latest.id);
+        if (bytes != null && mounted) {
+          setState(() {
+            _selectedYear = batch;
+            _excelBytes = bytes;
+          });
+        }
+      }
+    }
   }
 
   @override

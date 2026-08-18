@@ -293,7 +293,29 @@ class ReportCardPdfService {
                 pw.Padding(padding: const pw.EdgeInsets.all(5), child: pw.Center(child: pw.Text(markData.passFail, style: pw.TextStyle(font: englishBold, fontSize: 10)))),
               ]
             );
-          }()
+          }(),
+        if (config.includePlacement)
+          (){
+            String passFail = 'Fail';
+            if (student.placementMark != null && student.placementMark!.isNotEmpty) {
+              String pm = student.placementMark!.toUpperCase();
+              if (pm == 'AB' || pm == 'AAA' || pm == 'U') {
+                passFail = 'Fail';
+              } else {
+                int markInt = int.tryParse(student.placementMark!) ?? 0;
+                if (markInt >= 50) passFail = 'Pass';
+              }
+            }
+            return pw.TableRow(
+              children: [
+                pw.Padding(padding: const pw.EdgeInsets.all(5), child: pw.Center(child: pw.Text('Placement', style: pw.TextStyle(font: englishFont, fontSize: 10)))),
+                pw.Padding(padding: const pw.EdgeInsets.all(5), child: pw.Center(child: pw.Text('100', style: pw.TextStyle(font: englishBold, fontSize: 10)))),
+                pw.Padding(padding: const pw.EdgeInsets.all(5), child: pw.Center(child: pw.Text('50', style: pw.TextStyle(font: englishBold, fontSize: 10)))),
+                pw.Padding(padding: const pw.EdgeInsets.all(5), child: pw.Center(child: pw.Text(student.placementMark ?? '', style: pw.TextStyle(font: englishBold, fontSize: 10)))),
+                pw.Padding(padding: const pw.EdgeInsets.all(5), child: pw.Center(child: pw.Text(passFail, style: pw.TextStyle(font: englishBold, fontSize: 10)))),
+              ]
+            );
+          }(),
       ]
     );
   }

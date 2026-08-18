@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:file_selector/file_selector.dart';
 import 'package:printing/printing.dart';
 import 'package:pdf/pdf.dart';
+import 'package:excel/excel.dart' hide Border;
 import 'preview_screen.dart';
 import '../models/report_card_data.dart';
 import '../models/report_card_config.dart';
@@ -112,6 +113,45 @@ class _ReportCardExcelScreenState extends State<ReportCardExcelScreen> {
   }
 
   Future<void> _pickLeaveExcel() async {
+    String? selectedBatch = await showDialog<String>(
+      context: context,
+      builder: (context) {
+        String? tempBatch;
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              title: const Text('Select Batch'),
+              content: DropdownButtonFormField<String>(
+                decoration: const InputDecoration(labelText: 'Batch', border: OutlineInputBorder()),
+                value: tempBatch,
+                items: [
+
+                  const DropdownMenuItem(value: '2025', child: Text('2025 - 2029')),
+                  const DropdownMenuItem(value: '2024', child: Text('2024 - 2028')),
+                  const DropdownMenuItem(value: '2023', child: Text('2023 - 2027')),
+
+                ],
+                onChanged: (val) {
+                  setState(() {
+                    tempBatch = val;
+                  });
+                },
+              ),
+              actions: [
+                TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
+                TextButton(
+                  onPressed: tempBatch != null ? () => Navigator.pop(context, tempBatch) : null, 
+                  child: const Text('Continue')
+                ),
+              ],
+            );
+          }
+        );
+      }
+    );
+
+    if (selectedBatch == null) return;
+
     final XFile? file = await openFile();
     if (file != null) {
       setState(() {
@@ -121,10 +161,31 @@ class _ReportCardExcelScreenState extends State<ReportCardExcelScreen> {
       });
       try {
         final bytes = await file.readAsBytes();
-        await _storageService.saveExcelFile(file.name, 'Leave Intimation', bytes);
+        
+        // Validation: Verify Excel belongs to the selected batch
+        bool batchMatch = false;
+        var excel = Excel.decodeBytes(bytes);
+        for (var table in excel.tables.keys) {
+          for (var row in excel.tables[table]!.rows) {
+            if (row.any((cell) => cell?.value?.toString().contains(selectedBatch) ?? false)) {
+              batchMatch = true;
+              break;
+            }
+          }
+          if (batchMatch) break;
+        }
+
+        if (!batchMatch) {
+          throw Exception('The uploaded Leave Intimation Excel does not belong to the selected batch.');
+        }
+
+        final String fileNameToSave = 'Leave_Intimation_Year_$selectedBatch';
+        await _storageService.saveExcelFile(fileNameToSave, 'Leave Intimation', bytes);
         await _loadHistory();
+        
         if (_leaveHistory.isNotEmpty) {
-          _selectedLeaveFile = _leaveHistory.first;
+          // Select the newly added/updated one
+          _selectedLeaveFile = _leaveHistory.firstWhere((f) => f.originalFileName == fileNameToSave, orElse: () => _leaveHistory.first);
           _leaveExcelBytes = await _storageService.loadExcelFile(_selectedLeaveFile!.id);
         }
       } catch (e) {
@@ -216,6 +277,10 @@ class _ReportCardExcelScreenState extends State<ReportCardExcelScreen> {
             throw Exception('Marks data not found for Roll No. ${leaveStudent.rollNo}.');
           }
           
+          if (_config.includePlacement && (marksStudent.placementMark == null || marksStudent.placementMark!.isEmpty)) {
+            throw Exception('Placement mark not found for Roll No. ${leaveStudent.rollNo}.');
+          }
+
           // Use Identity from Leave Intimation, Academic from Student Marks
           final mergedStudent = ReportCardData(
             rollNo: leaveStudent.rollNo,
@@ -232,6 +297,7 @@ class _ReportCardExcelScreenState extends State<ReportCardExcelScreen> {
             address: leaveStudent.address,
             daysAbsent: marksStudent.daysAbsent,
             subjects: marksStudent.subjects,
+            placementMark: marksStudent.placementMark,
             availableSubjectCodes: marksStudent.availableSubjectCodes,
             isSelected: true,
           );
@@ -491,8 +557,20 @@ class _ReportCardExcelScreenState extends State<ReportCardExcelScreen> {
                   ),
                 ),
               ),
-            ],
 
+              const SizedBox(height: 16),
+              CheckboxListTile(
+                title: const Text('Placement', style: TextStyle(fontWeight: FontWeight.bold)),
+                value: _config.includePlacement,
+                onChanged: (val) {
+                  setState(() {
+                    _config.includePlacement = val ?? false;
+                  });
+                },
+                controlAffinity: ListTileControlAffinity.leading,
+                contentPadding: EdgeInsets.zero,
+              ),
+            ],
           ],
         ),
       );

@@ -34,6 +34,7 @@ class ReportCardData {
 
   final List<SubjectMark> subjects;
   final List<String> availableSubjectCodes; // NEW FIELD for validation
+  final String? placementMark; // NEW FIELD for placement
 
   bool isSelected;
 
@@ -52,6 +53,7 @@ class ReportCardData {
     required this.address,
     required this.daysAbsent,
     required this.subjects,
+    this.placementMark,
     this.availableSubjectCodes = const [],
     this.isSelected = false,
   });

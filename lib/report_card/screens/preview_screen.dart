@@ -76,8 +76,11 @@ class _PreviewScreenState extends State<PreviewScreen> {
                     ...widget.config.subjectMappings.map((m) => DataColumn(
                       label: Text(m.subjectCode.isEmpty ? 'Subject' : m.subjectCode, style: TextStyle(fontWeight: FontWeight.bold, color: Colors.blue.shade900)),
                     )),
+                    if (widget.config.includePlacement)
+                      DataColumn(label: Text('Placement', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.blue.shade900))),
                     DataColumn(label: Text('Total', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.blue.shade900))),
                     DataColumn(label: Text('Rank', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.blue.shade900))),
+                    DataColumn(label: Text('Absent', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.blue.shade900))),
                   ],
                   rows: widget.students.map((student) {
                     return DataRow(
@@ -97,8 +100,11 @@ class _PreviewScreenState extends State<PreviewScreen> {
                             )
                           );
                         }),
+                        if (widget.config.includePlacement)
+                          DataCell(Text(student.placementMark ?? '-', style: TextStyle(color: Colors.blue.shade900))),
                         DataCell(Text(student.scoredMarks, style: TextStyle(color: Colors.blue.shade900, fontWeight: FontWeight.bold))),
                         DataCell(Text(student.rank, style: TextStyle(color: student.rank == '-' ? Colors.red : Colors.blue.shade900, fontWeight: FontWeight.bold))),
+                        DataCell(Text(student.daysAbsent.toString(), style: TextStyle(color: Colors.blue.shade900))),
                       ],
                     );
                   }).toList(),
