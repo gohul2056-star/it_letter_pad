@@ -181,12 +181,12 @@ class PdfGeneratorService {
                 pw.Spacer(),
 
                 pw.Row(
-                  crossAxisAlignment: pw.CrossAxisAlignment.end,
+                  crossAxisAlignment: pw.CrossAxisAlignment.start,
                   children: [
                     pw.Expanded(
                       flex: 1,
                       child: pw.Align(
-                        alignment: pw.Alignment.centerLeft,
+                        alignment: pw.Alignment.topLeft,
                         child: pw.Column(
                           crossAxisAlignment: pw.CrossAxisAlignment.center,
                           children: [
@@ -199,7 +199,8 @@ class PdfGeneratorService {
                     ),
                     pw.Expanded(
                       flex: 1,
-                      child: pw.Center(
+                      child: pw.Align(
+                        alignment: pw.Alignment.topCenter,
                         child: pw.Column(
                           crossAxisAlignment: pw.CrossAxisAlignment.center,
                           children: [
@@ -217,7 +218,7 @@ class PdfGeneratorService {
                     pw.Expanded(
                       flex: 1,
                       child: pw.Align(
-                        alignment: pw.Alignment.centerRight,
+                        alignment: pw.Alignment.topRight,
                         child: pw.Column(
                           crossAxisAlignment: pw.CrossAxisAlignment.center,
                           children: [

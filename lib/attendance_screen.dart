@@ -16,7 +16,7 @@ class StudentData {
   String fromDate;
   String toDate;
   bool isSelected;
-  String presentDays;
+  String absentDays;
 
   StudentData({
     required this.rollNo,
@@ -28,7 +28,7 @@ class StudentData {
     this.fromDate = '',
     this.toDate = '',
     this.isSelected = false,
-    this.presentDays = '',
+    this.absentDays = '',
   });
 }
 
@@ -161,10 +161,10 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
         att = att.replaceAll('%', '').trim();
         String calculatedAtt = att;
         if (widget.totalSelectedDays > 0 && att.isNotEmpty) {
-          double? daysAttended = double.tryParse(att);
-          if (daysAttended != null) {
-            double percentage = (daysAttended / widget.totalSelectedDays) * 100;
-            calculatedAtt = percentage.round().toString();
+          double? daysAbsent = double.tryParse(att);
+          if (daysAbsent != null) {
+            double percentage = ((widget.totalSelectedDays - daysAbsent) / widget.totalSelectedDays) * 100;
+            calculatedAtt = percentage.toStringAsFixed(2);
           }
         }
 
@@ -178,7 +178,7 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
           fromDate: widget.fromDate,
           toDate: widget.toDate,
           isSelected: false,
-          presentDays: '',
+          absentDays: att,
         ));
       }
 
@@ -294,18 +294,18 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
                         trailing: SizedBox(
                           width: 60,
                           child: TextFormField(
-                            initialValue: s.presentDays,
+                            initialValue: s.absentDays,
                             decoration: const InputDecoration(
-                              labelText: 'Days',
+                              labelText: 'Days Absent',
                               isDense: true,
                             ),
                             keyboardType: TextInputType.number,
                             onChanged: (val) {
-                              s.presentDays = val;
-                              double? days = double.tryParse(val);
-                              if (days != null && widget.totalSelectedDays > 0) {
-                                double percentage = (days / widget.totalSelectedDays) * 100;
-                                s.attendance = percentage.round().toString();
+                              s.absentDays = val;
+                              double? daysAbsent = double.tryParse(val);
+                              if (daysAbsent != null && widget.totalSelectedDays > 0) {
+                                double percentage = ((widget.totalSelectedDays - daysAbsent) / widget.totalSelectedDays) * 100;
+                                s.attendance = percentage.toStringAsFixed(2);
                               }
                               setState(() {});
                             },
