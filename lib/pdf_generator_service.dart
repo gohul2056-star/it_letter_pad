@@ -72,18 +72,18 @@ class PdfGeneratorService {
     final pwHeader1 = await _buildTextImage(p.TextSpan(text: 'டாக்டர் சிவந்தி ஆதித்தனார் பொறியியல் கல்லூரி', style: tamilStyle14Bold));
     final pwHeader2 = await _buildTextImage(p.TextSpan(text: 'திருச்செந்தூர் - 628 215', style: tamilStyle12Bold));
     final pwDateLabel = await _buildTextImage(p.TextSpan(text: 'நாள்: ', style: tamilStyle12Bold));
-    final pwToLabel = await _buildTextImage(p.TextSpan(text: 'பெறுநர்:', style: tamilStyle12Italic));
-    final pwSalutation = await _buildTextImage(p.TextSpan(text: 'ஐயா,', style: tamilStyle12Italic));
+    final pwToLabel = await _buildTextImage(p.TextSpan(text: 'பெறுநர்:', style: tamilStyle12Bold));
+    final pwSalutation = await _buildTextImage(p.TextSpan(text: 'ஐயா,', style: tamilStyle12Bold));
     final pwPara2 = await _buildTextImage(
       p.TextSpan(text: '\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0பல்கலைக் கழகத் தேர்வு விதிமுறைகளின் படி ஒரு மாணவரின் வருகை பதிவு 75 சதவீதத்திற்கு குறைவாக இருந்தால் அவரை பல்கலைக்கழக தேர்வுகள் எழுத அனுமதிக்க இயலாது. மற்றும் இந்த பருவத்தின் கடைசி வேலை நாளுக்குள் உங்களது மகன் வருகைப்பதிவு 75% க்கு அதிகமாக இருக்க நாள் தவறாது வகுப்புக்கு குறித்த நேரத்தில் வருகை புரிய தகுந்த அறிவுரை கூறவும். எனவே இக்கடிதம் கண்டவுடன் துறை தலைவரை உடனே சந்திக்கவும்.', style: tamilStyle12),
       maxWidth: 515,
       textAlign: p.TextAlign.justify,
     );
     final pwThanks = await _buildTextImage(p.TextSpan(text: 'நன்றி.', style: tamilStyle12));
-    final pwYours = await _buildTextImage(p.TextSpan(text: 'இப்படிக்கு,', style: tamilStyle12));
-    final pwHodTitle = await _buildTextImage(p.TextSpan(text: 'துறைத்தலைவர்', style: tamilStyle10));
-    final pwAdvTitle = await _buildTextImage(p.TextSpan(text: 'ஆலோசகர்', style: tamilStyle10));
-    final pwPrinTitle = await _buildTextImage(p.TextSpan(text: 'முதல்வர்', style: tamilStyle10));
+    final pwYours = await _buildTextImage(p.TextSpan(text: 'இப்படிக்கு,', style: tamilStyle12Bold));
+    final pwHodTitle = await _buildTextImage(p.TextSpan(text: 'துறைத்தலைவர்', style: tamilStyle12Bold));
+    final pwAdvTitle = await _buildTextImage(p.TextSpan(text: 'ஆலோசகர்', style: tamilStyle12Bold));
+    final pwPrinTitle = await _buildTextImage(p.TextSpan(text: 'முதல்வர்', style: tamilStyle12Bold));
 
     for (var student in students) {
       String studentName = student.name;
@@ -141,8 +141,8 @@ class PdfGeneratorService {
                     pw.Column(
                       crossAxisAlignment: pw.CrossAxisAlignment.start,
                       children: [
-                        pw.Text('Dr. G. Wiselin Jiji', style: pw.TextStyle(font: englishFont, fontSize: 13)),
-                        pw.Text('PRINCIPAL', style: pw.TextStyle(font: englishFont, fontSize: 13)),
+                        pw.Text('Dr. G. Wiselin Jiji', style: pw.TextStyle(font: englishBold, fontSize: 13, )),
+                        pw.Text('PRINCIPAL', style: pw.TextStyle(font: englishBold, fontSize: 13)),
                       ]
                     ),
                     pw.Row(
@@ -245,14 +245,14 @@ class PdfGeneratorService {
                         child: pw.Column(
                           crossAxisAlignment: pw.CrossAxisAlignment.start,
                           children: [
-                            pw.Text('From:', style: pw.TextStyle(font: englishFont, fontSize: 10)),
+                            pw.Text('From:', style: pw.TextStyle(font: englishBold, fontSize: 10)),
                             pw.SizedBox(height: 10),
                             pw.Padding(
                               padding: const pw.EdgeInsets.only(left: 20),
                               child: pw.Column(
                                 crossAxisAlignment: pw.CrossAxisAlignment.start,
                                 children: [
-                                  pw.Text('The Principal', style: pw.TextStyle(font: englishFont, fontSize: 10)),
+                                  pw.Text('The Principal', style: pw.TextStyle(font: englishBold, fontSize: 10)),
                                   pw.Text('Dr. Sivanthi Aditanar College of Engineering', style: pw.TextStyle(font: englishFont, fontSize: 10)),
                                   pw.Text('Tiruchendur 628215', style: pw.TextStyle(font: englishFont, fontSize: 10)),
                                   pw.Text('Tuticorin.', style: pw.TextStyle(font: englishFont, fontSize: 10)),
@@ -269,7 +269,7 @@ class PdfGeneratorService {
                         child: pw.Column(
                           crossAxisAlignment: pw.CrossAxisAlignment.start,
                           children: [
-                            pw.Text('To', style: pw.TextStyle(font: englishFont, fontSize: 10)),
+                            pw.Text('To', style: pw.TextStyle(font: englishBold, fontSize: 10)),
                             pw.SizedBox(height: 10),
                             pw.Padding(
                               padding: const pw.EdgeInsets.only(left: 20),
@@ -292,7 +292,7 @@ class PdfGeneratorService {
                         child: pw.Column(
                           crossAxisAlignment: pw.CrossAxisAlignment.center,
                           children: [
-                            pw.Text('STAMP', style: pw.TextStyle(font: englishFont, fontSize: 10)),
+                            pw.Text('STAMP', style: pw.TextStyle(font: englishBold, fontSize: 10)),
                             pw.SizedBox(height: 5),
                             pw.Container(
                               width: 40,

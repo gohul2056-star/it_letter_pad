@@ -440,13 +440,25 @@ class _EditableLetterViewState extends State<EditableLetterView> {
   @override
   void didUpdateWidget(EditableLetterView oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.student != widget.student) {
+    if (_dateController.text != widget.student.date) {
       _dateController.text = widget.student.date;
+    }
+    if (_nameController.text != widget.student.name) {
       _nameController.text = widget.student.name;
+    }
+    if (_addressController.text != widget.student.address) {
       _addressController.text = widget.student.address;
+    }
+    if (_attController.text != widget.student.attendance) {
       _attController.text = widget.student.attendance;
+    }
+    if (_advisorController.text != widget.student.advisor) {
       _advisorController.text = widget.student.advisor;
+    }
+    if (_fromDateController.text != widget.student.fromDate) {
       _fromDateController.text = widget.student.fromDate;
+    }
+    if (_toDateController.text != widget.student.toDate) {
       _toDateController.text = widget.student.toDate;
     }
   }
@@ -487,7 +499,6 @@ class _EditableLetterViewState extends State<EditableLetterView> {
         fit: BoxFit.contain,
         child: Container(
           width: 595, // Standard A4 width
-          // height: 842, // Removed to allow dynamic height
           decoration: BoxDecoration(
             color: Colors.white,
             boxShadow: [
@@ -500,17 +511,17 @@ class _EditableLetterViewState extends State<EditableLetterView> {
             ],
           ),
           child: Padding(
-            padding: const EdgeInsets.all(40.0),
+            padding: const EdgeInsets.symmetric(horizontal: 40.0, vertical: 25.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('டாக்டர் சிவந்தி ஆதித்தனார் பொறியியல் கல்லூரி', style: GoogleFonts.notoSansTamil(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black)),
-                Text('திருச்செந்தூர் - 628 215', style: GoogleFonts.notoSansTamil(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.black)),
+                Text('டாக்டர் சிவந்தி ஆதித்தனார் பொறியியல் கல்லூரி', style: GoogleFonts.notoSansTamil(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.black)),
+                Text('திருச்செந்தூர் - 628 215', style: GoogleFonts.notoSansTamil(fontSize: 13, fontWeight: FontWeight.bold, color: Colors.black)),
+                const SizedBox(height: 5),
+                const Text('OFFICE : 04639 - 242482', style: TextStyle(fontSize: 10, color: Colors.black)),
+                const Text('FAX : 243188', style: TextStyle(fontSize: 10, color: Colors.black)),
+                const Divider(thickness: 1, color: Colors.black),
                 const SizedBox(height: 8),
-                const Text('OFFICE : 04639 - 242482', style: TextStyle(fontSize: 12, color: Colors.black)),
-                const Text('FAX : 243188', style: TextStyle(fontSize: 12, color: Colors.black)),
-                const Divider(thickness: 1.5, color: Colors.black),
-                const SizedBox(height: 10),
                 
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -519,19 +530,19 @@ class _EditableLetterViewState extends State<EditableLetterView> {
                     const Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Dr. G. Wiselin Jiji', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Colors.black)),
-                        Text('PRINCIPAL', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Colors.black)),
+                        Text('Dr. G. Wiselin Jiji', style: TextStyle(fontSize: 13, color: Colors.black,fontWeight: FontWeight.bold)),
+                        Text('PRINCIPAL', style: TextStyle(fontSize: 13, color: Colors.black,fontWeight: FontWeight.bold)),
                       ],
                     ),
                     Row(
                       children: [
-                        Text('நாள்: ', style: GoogleFonts.notoSansTamil(fontWeight: FontWeight.bold, color: Colors.black)),
+                        Text('நாள்: ', style: GoogleFonts.notoSansTamil(fontSize: 13, fontWeight: FontWeight.bold, color: Colors.black)),
                         IntrinsicWidth(
                           child: ConstrainedBox(
                             constraints: const BoxConstraints(minWidth: 80),
                             child: TextField(
                               controller: _dateController,
-                              style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
+                              style: const TextStyle(fontSize: 13, color: Colors.black),
                               decoration: const InputDecoration(border: InputBorder.none, isDense: true, contentPadding: EdgeInsets.zero),
                             ),
                           ),
@@ -542,35 +553,35 @@ class _EditableLetterViewState extends State<EditableLetterView> {
                 ),
                 const SizedBox(height: 10),
 
-                Text('பெறுநர்:', style: GoogleFonts.notoSansTamil(fontSize: 14, fontStyle: FontStyle.italic, color: Colors.black)),
+                Text('பெறுநர்:', style: GoogleFonts.notoSansTamil(fontSize: 14, fontStyle: FontStyle.italic, color: Colors.black,fontWeight: FontWeight.bold)),
                 Padding(
-                  padding: const EdgeInsets.only(left: 30),
+                  padding: const EdgeInsets.only(left: 30, top: 2),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       TextField(
                         controller: _nameController,
-                        style: const TextStyle(fontSize: 14, height: 1.5, color: Colors.black),
+                        style: const TextStyle(fontSize: 12, color: Colors.black),
                         decoration: const InputDecoration(border: InputBorder.none, isDense: true, contentPadding: EdgeInsets.zero),
                       ),
                       TextField(
                         controller: _addressController,
                         maxLines: null,
-                        style: const TextStyle(fontSize: 14, height: 1.5, color: Colors.black),
+                        style: const TextStyle(fontSize: 12, color: Colors.black),
                         decoration: const InputDecoration(border: InputBorder.none, isDense: true, contentPadding: EdgeInsets.zero),
                       ),
                     ],
                   ),
                 ),
                 const SizedBox(height: 10),
-                Text('ஐயா,', style: GoogleFonts.notoSansTamil(fontSize: 14, fontStyle: FontStyle.italic, color: Colors.black)),
-                const SizedBox(height: 5), // Reduced
+                Text('ஐயா,', style: GoogleFonts.notoSansTamil(fontSize: 14, fontStyle: FontStyle.italic, color: Colors.black,fontWeight: FontWeight.bold)),
+                const SizedBox(height: 5),
 
                 Text.rich(
                   TextSpan(
-                    style: GoogleFonts.notoSansTamil(fontSize: 13, height: 2.0, color: Colors.black),
+                    style: GoogleFonts.notoSansTamil(fontSize: 14, height: 2.0, color: Colors.black),
                     children: [
-                      const TextSpan(text: '      எங்களது கல்லூரியில் இறுதி ஆண்டு Information Technology துறையில் பயிலும் தங்களது மகன்/மகள் '),
+                      const TextSpan(text: '        எங்களது கல்லூரியில் இறுதி ஆண்டு Information Technology துறையில் பயிலும் தங்களது மகன்/மகள் '),
                       TextSpan(text: _nameController.text),
                       const TextSpan(text: ' அவர்களின் கல்லூரி வருகைப்பதிவு '),
                       TextSpan(text: _attController.text),
@@ -583,40 +594,42 @@ class _EditableLetterViewState extends State<EditableLetterView> {
                   ),
                   textAlign: TextAlign.justify,
                 ),
-                const SizedBox(height: 8), // Reduced
+                const SizedBox(height: 8),
 
                 Text(
-                  '      பல்கலைக் கழகத் தேர்வு விதிமுறைகளின் படி ஒரு மாணவரின் வருகை பதிவு 75 சதவீதத்திற்கு குறைவாக இருந்தால் அவரை பல்கலைக்கழக தேர்வுகள் எழுத அனுமதிக்க இயலாது. மற்றும் இந்த பருவத்தின் கடைசி வேலை நாளுக்குள் உங்களது மகன் வருகைப்பதிவு 75% க்கு அதிகமாக இருக்க நாள் தவறாது வகுப்புக்கு குறித்த நேரத்தில் வருகை புரிய தகுந்த அறிவுரை கூறவும். எனவே இக்கடிதம் கண்டவுடன் துறை தலைவரை உடனே சந்திக்கவும்.',
-                  style: GoogleFonts.notoSansTamil(fontSize: 13, height: 2.0, color: Colors.black),
+                  '        பல்கலைக் கழகத் தேர்வு விதிமுறைகளின் படி ஒரு மாணவரின் வருகை பதிவு 75 சதவீதத்திற்கு குறைவாக இருந்தால் அவரை பல்கலைக்கழக தேர்வுகள் எழுத அனுமதிக்க இயலாது. மற்றும் இந்த பருவத்தின் கடைசி வேலை நாளுக்குள் உங்களது மகன் வருகைப்பதிவு 75% க்கு அதிகமாக இருக்க நாள் தவறாது வகுப்புக்கு குறித்த நேரத்தில் வருகை புரிய தகுந்த அறிவுரை கூறவும். எனவே இக்கடிதம் கண்டவுடன் துறை தலைவரை உடனே சந்திக்கவும்.',
+                  style: GoogleFonts.notoSansTamil(fontSize: 14, height: 2.0, color: Colors.black),
                   textAlign: TextAlign.justify,
                 ),
-                const SizedBox(height: 10), // Reduced
+                const SizedBox(height: 10),
 
-                Center(child: Text('நன்றி.', style: GoogleFonts.notoSansTamil(fontSize: 13, color: Colors.black))),
-                const SizedBox(height: 10), // Reduced
+                Center(child: Text('நன்றி.', style: GoogleFonts.notoSansTamil(fontSize: 14, height: 2.0, color: Colors.black))),
+                const SizedBox(height: 10),
 
-                Align(alignment: Alignment.centerRight, child: Text('இப்படிக்கு,', style: GoogleFonts.notoSansTamil(fontSize: 13, color: Colors.black))),
-                const SizedBox(height: 20), // Reduced from 30
+                Align(alignment: Alignment.centerRight, child: Text('இப்படிக்கு,', style: GoogleFonts.notoSansTamil(fontSize: 14, height: 2.0, color: Colors.black))),
+                const SizedBox(height: 30),
 
                 Row(
-                  crossAxisAlignment: CrossAxisAlignment.end,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Expanded(
                       flex: 1,
                       child: Align(
-                        alignment: Alignment.centerLeft,
+                        alignment: Alignment.topLeft,
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
-                            const Text('Dr. S. Selvi, Prof & HOD/IT', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 11, color: Colors.black), textAlign: TextAlign.center),
-                            Text('துறைத்தலைவர்', style: GoogleFonts.notoSansTamil(fontSize: 11, color: Colors.black), textAlign: TextAlign.center),
+                            const Text('Dr. S. Selvi, Prof & HOD/IT', style: TextStyle(fontSize: 11, color: Colors.black), textAlign: TextAlign.center),
+                            const SizedBox(height: 2),
+                            Text('துறைத்தலைவர்', style: GoogleFonts.notoSansTamil(fontSize: 11, color: Colors.black,fontWeight: FontWeight.bold), textAlign: TextAlign.center),
                           ]
                         ),
                       )
                     ),
                     Expanded(
                       flex: 1,
-                      child: Center(
+                      child: Align(
+                        alignment: Alignment.topCenter,
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
@@ -624,10 +637,11 @@ class _EditableLetterViewState extends State<EditableLetterView> {
                               controller: _advisorController,
                               maxLines: null,
                               textAlign: TextAlign.center,
-                              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 11, color: Colors.black),
+                              style: const TextStyle(fontSize: 11, color: Colors.black),
                               decoration: const InputDecoration(border: InputBorder.none, isDense: true, contentPadding: EdgeInsets.zero),
                             ),
-                            Text('ஆலோசகர்', style: GoogleFonts.notoSansTamil(fontSize: 11, color: Colors.black), textAlign: TextAlign.center),
+                            const SizedBox(height: 2),
+                            Text('ஆலோசகர்', style: GoogleFonts.notoSansTamil(fontSize: 11, color: Colors.black,fontWeight: FontWeight.bold), textAlign: TextAlign.center),
                           ]
                         ),
                       )
@@ -635,12 +649,13 @@ class _EditableLetterViewState extends State<EditableLetterView> {
                     Expanded(
                       flex: 1,
                       child: Align(
-                        alignment: Alignment.centerRight,
+                        alignment: Alignment.topRight,
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
-                            const Text('Dr. G. Wiselin Jiji', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 11, color: Colors.black), textAlign: TextAlign.center),
-                            Text('முதல்வர்', style: GoogleFonts.notoSansTamil(fontSize: 11, color: Colors.black), textAlign: TextAlign.center),
+                            const Text('Dr. G. Wiselin Jiji', style: TextStyle(fontSize: 11, color: Colors.black), textAlign: TextAlign.center),
+                            const SizedBox(height: 2),
+                            Text('முதல்வர்', style: GoogleFonts.notoSansTamil(fontSize: 11, color: Colors.black,fontWeight: FontWeight.bold), textAlign: TextAlign.center),
                           ]
                         ),
                       )
@@ -648,7 +663,7 @@ class _EditableLetterViewState extends State<EditableLetterView> {
                   ]
                 ),
                 
-                const SizedBox(height: 5), // Reduced
+                const SizedBox(height: 5),
                 const Divider(thickness: 1.5, color: Colors.black),
                 
                 Row(
@@ -661,17 +676,17 @@ class _EditableLetterViewState extends State<EditableLetterView> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Text('From:', style: TextStyle(fontSize: 11, color: Colors.black)),
+                            const Text('From:', style: TextStyle(fontSize: 10, color: Colors.black,fontWeight: FontWeight.bold)),
                             const SizedBox(height: 10),
                             Padding(
                               padding: const EdgeInsets.only(left: 20),
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: const [
-                                  Text('The Principal', style: TextStyle(fontSize: 11, color: Colors.black)),
-                                  Text('Dr. Sivanthi Aditanar College of Engineering', style: TextStyle(fontSize: 11, color: Colors.black)),
-                                  Text('Tiruchendur 628215', style: TextStyle(fontSize: 11, color: Colors.black)),
-                                  Text('Tuticorin.', style: TextStyle(fontSize: 11, color: Colors.black)),
+                                  Text('The Principal', style: TextStyle(fontSize: 10, color: Colors.black)),
+                                  Text('Dr. Sivanthi Aditanar College of Engineering', style: TextStyle(fontSize: 10, color: Colors.black)),
+                                  Text('Tiruchendur 628215', style: TextStyle(fontSize: 10, color: Colors.black)),
+                                  Text('Tuticorin.', style: TextStyle(fontSize: 10, color: Colors.black)),
                                 ]
                               )
                             )
@@ -685,7 +700,7 @@ class _EditableLetterViewState extends State<EditableLetterView> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Text('To', style: TextStyle(fontSize: 11, color: Colors.black)),
+                            const Text('To', style: TextStyle(fontSize: 10, color: Colors.black,fontWeight: FontWeight.bold)),
                             const SizedBox(height: 10),
                             Padding(
                               padding: const EdgeInsets.only(left: 20),
@@ -694,13 +709,13 @@ class _EditableLetterViewState extends State<EditableLetterView> {
                                 children: [
                                   TextField(
                                     controller: _nameController,
-                                    style: const TextStyle(fontSize: 11, height: 1.5, color: Colors.black),
+                                    style: const TextStyle(fontSize: 10, color: Colors.black),
                                     decoration: const InputDecoration(border: InputBorder.none, isDense: true, contentPadding: EdgeInsets.zero),
                                   ),
                                   TextField(
                                     controller: _addressController,
                                     maxLines: null,
-                                    style: const TextStyle(fontSize: 11, height: 1.5, color: Colors.black),
+                                    style: const TextStyle(fontSize: 10, color: Colors.black),
                                     decoration: const InputDecoration(border: InputBorder.none, isDense: true, contentPadding: EdgeInsets.zero),
                                   ),
                                 ]
@@ -717,7 +732,7 @@ class _EditableLetterViewState extends State<EditableLetterView> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
-                            const Text('STAMP', style: TextStyle(fontSize: 11, color: Colors.black)),
+                            const Text('STAMP', style: TextStyle(fontSize: 10, color: Colors.black,fontWeight: FontWeight.bold)),
                             const SizedBox(height: 5),
                             Container(
                               width: 40,
