@@ -179,7 +179,7 @@ class PdfGeneratorService {
                 pw.SizedBox(height: 10), // Reduced from 15
 
                 pw.Align(alignment: pw.Alignment.centerRight, child: pwYours),
-                pw.SizedBox(height: 50), // Replaced Spacer with fixed height
+                pw.SizedBox(height: 120), // Replaced Spacer with fixed height
 
                 pw.Row(
                   crossAxisAlignment: pw.CrossAxisAlignment.start,
@@ -233,9 +233,9 @@ class PdfGeneratorService {
                   ]
                 ),
                 
-                pw.SizedBox(height:10), // Reduced from 10
+                pw.SizedBox(height:20), // Reduced from 10
                 pw.Divider(thickness: 3),
-                
+                pw.SizedBox(height:20),
                 pw.Row(
                   crossAxisAlignment: pw.CrossAxisAlignment.start,
                   children: [
