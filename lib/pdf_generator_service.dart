@@ -65,7 +65,7 @@ class PdfGeneratorService {
     final p.TextStyle tamilStyle14Bold = GoogleFonts.notoSansTamil(fontSize: 14, fontWeight: p.FontWeight.bold, color: const p.Color(0xFF000000));
     final p.TextStyle tamilStyle12Bold = GoogleFonts.notoSansTamil(fontSize: 13, fontWeight: p.FontWeight.bold, color: const p.Color(0xFF000000));
     final p.TextStyle tamilStyle12Italic = GoogleFonts.notoSansTamil(fontSize: 14, fontStyle: p.FontStyle.italic, color: const p.Color(0xFF000000));
-    final p.TextStyle tamilStyle12 = GoogleFonts.notoSansTamil(fontSize: 14, height: 2.0, color: const p.Color(0xFF000000));
+    final p.TextStyle tamilStyle12 = GoogleFonts.notoSansTamil(fontSize: 12, height: 1.5, color: const p.Color(0xFF000000));
     final p.TextStyle tamilStyle10 = GoogleFonts.notoSansTamil(fontSize: 11, color: const p.Color(0xFF000000));
     final p.TextStyle englishStyle = const p.TextStyle(fontFamily: 'Roboto', fontSize: 14, height: 2.0, color: p.Color(0xFF000000));
     
@@ -121,9 +121,10 @@ class PdfGeneratorService {
       pdf.addPage(
         pw.Page(
           pageFormat: PdfPageFormat.a4,
-          margin: const pw.EdgeInsets.symmetric(horizontal: 40, vertical: 25), // Reduced vertical margins
+          margin: const pw.EdgeInsets.only(left: 40, right: 40, top: 25, bottom: 15), // Reduced vertical and bottom margins
           build: (pw.Context context) {
             return pw.Column(
+              mainAxisSize: pw.MainAxisSize.min,
               crossAxisAlignment: pw.CrossAxisAlignment.start,
               children: [
                 pwHeader1,
@@ -178,7 +179,7 @@ class PdfGeneratorService {
                 pw.SizedBox(height: 10), // Reduced from 15
 
                 pw.Align(alignment: pw.Alignment.centerRight, child: pwYours),
-                pw.Spacer(),
+                pw.SizedBox(height: 50), // Replaced Spacer with fixed height
 
                 pw.Row(
                   crossAxisAlignment: pw.CrossAxisAlignment.start,
@@ -232,8 +233,8 @@ class PdfGeneratorService {
                   ]
                 ),
                 
-                pw.SizedBox(height: 5), // Reduced from 10
-                pw.Divider(thickness: 1.5),
+                pw.SizedBox(height:10), // Reduced from 10
+                pw.Divider(thickness: 3),
                 
                 pw.Row(
                   crossAxisAlignment: pw.CrossAxisAlignment.start,
