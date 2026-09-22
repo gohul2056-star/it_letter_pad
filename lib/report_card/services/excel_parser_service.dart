@@ -2,6 +2,7 @@ import 'dart:typed_data';
 import 'package:excel/excel.dart';
 import '../models/report_card_data.dart';
 import '../models/subject_mapping.dart';
+import '../../excel_storage_service.dart';
 
 class ExcelParserService {
   List<String> getAvailableSubjectHeaders(Uint8List bytes) {
@@ -33,7 +34,8 @@ class ExcelParserService {
         'name', 'student name',
         'class', 'date', 'total mark', 'total marks', 'scored mark', 'scored marks',
         'rank', 'attendance', 'attendance %', 'absent', 'days absent', 'absent days', 
-        'from date', 'from', 'to date', 'to', 'remarks', 'address', 'placement'
+        'from date', 'from', 'to date', 'to', 'remarks', 'address', 'placement',
+        'batch', 'year', 'batch/year'
       };
 
       for (var cell in headerRow) {
@@ -55,7 +57,7 @@ class ExcelParserService {
     return subjectHeaders;
   }
 
-  List<ReportCardData> parseExcel(Uint8List bytes, {List<SubjectMapping>? subjectMappings}) {
+  List<ReportCardData> parseExcel(Uint8List bytes, {List<SubjectMapping>? subjectMappings, String? defaultBatch}) {
     var excel = Excel.decodeBytes(bytes);
     List<ReportCardData> parsedStudents = [];
 
@@ -102,7 +104,8 @@ class ExcelParserService {
         'name', 'student name',
         'class', 'date', 'total mark', 'total marks', 'scored mark', 'scored marks',
         'rank', 'attendance', 'attendance %', 'absent', 'days absent', 'absent days', 
-        'from date', 'from', 'to date', 'to', 'remarks', 'address', 'placement'
+        'from date', 'from', 'to date', 'to', 'remarks', 'address', 'placement',
+        'batch', 'year', 'batch/year'
       };
 
       for (int r = headerRowIndex + 1; r < sheet.rows.length; r++) {
@@ -140,6 +143,31 @@ class ExcelParserService {
         int daysAbsent = int.tryParse(daysAbsentStr) ?? 0;
 
         String placementMark = getCellVal('placement');
+        
+        String batchVal = getCellVal('batch');
+        if (batchVal.isEmpty) batchVal = getCellVal('year');
+        if (batchVal.isEmpty) batchVal = getCellVal('batch/year');
+        
+        if (batchVal.isEmpty) {
+           for (var c in row) {
+              if (c != null && c.value != null) {
+                 String val = c.value.toString().trim();
+                 if (RegExp(r'\b(20[2-9][0-9])\b').hasMatch(val)) {
+                    batchVal = RegExp(r'\b(20[2-9][0-9])\b').firstMatch(val)!.group(1)!;
+                    break;
+                 }
+              }
+           }
+        }
+        
+        String finalBatch = defaultBatch ?? 'Batch Not Specified';
+        if (batchVal.isNotEmpty) {
+           if (!batchVal.toLowerCase().contains('batch')) {
+              finalBatch = 'Batch $batchVal';
+           } else {
+              finalBatch = batchVal;
+           }
+        }
 
         String classAndSem = '';
         String date = '';
@@ -216,6 +244,7 @@ class ExcelParserService {
           studentName: studentName,
           classAndSem: classAndSem,
           date: date,
+          batch: finalBatch,
           totalMarks: totalMarksStr,
           scoredMarks: scoredMarksStr,
           rank: rank,
@@ -237,5 +266,78 @@ class ExcelParserService {
     }
 
     return parsedStudents;
+  }
+
+  Future<List<String>> getBatchesForFile(ExcelFileMetadata file, Future<Uint8List?> Function(String) loadFile) async {
+    if (file.batches != null && file.batches!.isNotEmpty) {
+      return file.batches!;
+    }
+    
+    if (file.originalFileName.startsWith('Leave_Intimation_Year_') || file.originalFileName.startsWith('Student_Details_Year_')) {
+      final parts = file.originalFileName.split('_');
+      if (parts.isNotEmpty) {
+        return ['Batch ${parts.last.replaceAll('.xlsx', '')}'];
+      }
+    }
+    
+    final bytes = await loadFile(file.id);
+    if (bytes != null) {
+      try {
+        var excel = Excel.decodeBytes(bytes);
+        Set<String> foundBatches = {};
+        for (var table in excel.tables.keys) {
+          var sheet = excel.tables[table]!;
+          int headerRowIndex = -1;
+          List<String> headers = [];
+          
+          for (int r = 0; r < sheet.rows.length && r < 10; r++) {
+            var row = sheet.rows[r];
+            bool hasRoll = row.any((c) => (c?.value?.toString().toLowerCase() ?? '').contains('roll') || (c?.value?.toString().toLowerCase() ?? '').contains('reg'));
+            bool hasName = row.any((c) => (c?.value?.toString().toLowerCase() ?? '').contains('name') || (c?.value?.toString().toLowerCase() ?? '').contains('student'));
+            if (hasRoll || hasName) {
+              headerRowIndex = r;
+              headers = row.map((c) => c?.value?.toString().trim().toLowerCase() ?? '').toList();
+              break;
+            }
+          }
+
+          if (headerRowIndex != -1) {
+            int batchColIndex = headers.indexWhere((h) => h == 'batch' || h == 'year' || h == 'batch/year');
+            if (batchColIndex != -1) {
+              for (int r = headerRowIndex + 1; r < sheet.rows.length; r++) {
+                var row = sheet.rows[r];
+                if (row.length > batchColIndex) {
+                  var val = row[batchColIndex]?.value?.toString().trim();
+                  if (val != null && val.isNotEmpty) {
+                     foundBatches.add(val.toLowerCase().contains('batch') ? val : 'Batch $val');
+                  }
+                }
+              }
+            }
+          }
+          
+          if (foundBatches.isEmpty) {
+            for (var row in sheet.rows) {
+               for (var cell in row) {
+                  if (cell != null && cell.value != null) {
+                     String val = cell.value.toString().trim();
+                     if (RegExp(r'\b(20[2-9][0-9])\b').hasMatch(val)) {
+                        String year = RegExp(r'\b(20[2-9][0-9])\b').firstMatch(val)!.group(1)!;
+                        foundBatches.add('Batch $year');
+                     }
+                  }
+               }
+            }
+          }
+        }
+        if (foundBatches.isNotEmpty) {
+          return foundBatches.toList();
+        }
+      } catch (e) {
+        // ignore parsing errors
+      }
+    }
+    
+    return ['Batch Not Specified'];
   }
 }

@@ -21,6 +21,7 @@ class ReportCardData {
   final String studentName;
   final String classAndSem;
   final String date;
+  final String batch; // NEW FIELD
   
   final String totalMarks;
   final String scoredMarks;
@@ -30,11 +31,11 @@ class ReportCardData {
   final String toDate;
   final String remarks;
   final String address;
-  final int daysAbsent; // NEW FIELD
+  final int daysAbsent;
 
   final List<SubjectMark> subjects;
-  final List<String> availableSubjectCodes; // NEW FIELD for validation
-  final String? placementMark; // NEW FIELD for placement
+  final List<String> availableSubjectCodes;
+  final String? placementMark;
 
   bool isSelected;
 
@@ -43,6 +44,7 @@ class ReportCardData {
     required this.studentName,
     required this.classAndSem,
     required this.date,
+    this.batch = 'Batch Not Specified', // Default value
     required this.totalMarks,
     required this.scoredMarks,
     required this.rank,

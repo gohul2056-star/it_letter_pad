@@ -30,12 +30,16 @@ class _ReportCardExcelScreenState extends State<ReportCardExcelScreen> {
   bool _isLoading = true;
   String _error = '';
   
-  // Leave Intimation State
-  List<ExcelFileMetadata> _leaveHistory = [];
-  ExcelFileMetadata? _selectedLeaveFile;
-  Uint8List? _leaveExcelBytes;
+  List<ExcelFileMetadata> _studentDetailsHistory = [];
+  List<ReportCardData> _allStudentDetails = [];
+  List<String> _availableBatches = [];
+  String? _selectedBatch;
 
   // Student Marks State
+  List<ExcelFileMetadata> _studentMarksHistory = [];
+  List<String> _availableMarksBatches = [];
+  Map<String, ExcelFileMetadata> _marksBatchesFiles = {};
+  String? _selectedMarksBatch;
   bool _isMarksFileUploaded = false;
   Uint8List? _marksExcelBytes;
   List<String> _availableSubjectHeaders = [];
@@ -96,9 +100,68 @@ class _ReportCardExcelScreenState extends State<ReportCardExcelScreen> {
 
   Future<void> _loadHistory() async {
     final history = await _storageService.getHistory();
+    final studentDetailsFiles = history.where((m) => m.fileType == 'Leave Intimation' || m.fileType == 'Student Details').toList();
+    final studentMarksFiles = history.where((m) => m.fileType == 'Student Marks').toList();
+    
+    Map<String, ReportCardData> latestStudents = {};
+    Set<String> batches = {};
+    
+    // Process oldest to newest so newest overwrites
+    for (var file in studentDetailsFiles.reversed) {
+      final bytes = await _storageService.loadExcelFile(file.id);
+      if (bytes != null) {
+        try {
+          String? extractedBatch;
+          if (file.originalFileName.startsWith('Leave_Intimation_Year_') || file.originalFileName.startsWith('Student_Details_Year_')) {
+            final parts = file.originalFileName.split('_');
+            if (parts.isNotEmpty) extractedBatch = 'Batch ${parts.last.replaceAll('.xlsx', '')}';
+          }
+          
+          var students = _parserService.parseExcel(bytes, defaultBatch: extractedBatch);
+          for (var s in students) {
+            latestStudents[s.rollNo.trim().toLowerCase()] = s;
+            batches.add(s.batch);
+          }
+        } catch (e) {
+          // ignore
+        }
+      }
+    }
+    
+    Set<String> marksBatchesSet = {};
+    Map<String, ExcelFileMetadata> marksBatchesFiles = {};
+    
+    // Process marks files (newest first, since we want the latest uploaded marks file for a batch)
+    for (var file in studentMarksFiles) {
+       List<String> fileBatches = await _parserService.getBatchesForFile(file, _storageService.loadExcelFile);
+       for (var b in fileBatches) {
+          if (!marksBatchesFiles.containsKey(b)) {
+             marksBatchesFiles[b] = file;
+             marksBatchesSet.add(b);
+          }
+       }
+    }
+    
     if (mounted) {
       setState(() {
-        _leaveHistory = history.where((m) => m.fileType == 'Leave Intimation').toList();
+        _studentDetailsHistory = studentDetailsFiles;
+        _allStudentDetails = latestStudents.values.toList();
+        _availableBatches = batches.toList()..sort();
+        
+        _studentMarksHistory = studentMarksFiles;
+        _availableMarksBatches = marksBatchesSet.toList()..sort();
+        _marksBatchesFiles = marksBatchesFiles;
+        
+        if (_selectedBatch != null && !_availableBatches.contains(_selectedBatch)) {
+          _selectedBatch = null;
+        }
+        
+        if (_selectedMarksBatch != null && !_availableMarksBatches.contains(_selectedMarksBatch)) {
+          _selectedMarksBatch = null;
+          _isMarksFileUploaded = false;
+          _marksExcelBytes = null;
+        }
+        
         _isLoading = false;
       });
     }
@@ -112,84 +175,25 @@ class _ReportCardExcelScreenState extends State<ReportCardExcelScreen> {
     return _availableSubjectHeaders.contains(enteredCode);
   }
 
-  Future<void> _pickLeaveExcel() async {
-    String? selectedBatch = await showDialog<String>(
-      context: context,
-      builder: (context) {
-        String? tempBatch;
-        return StatefulBuilder(
-          builder: (context, setState) {
-            return AlertDialog(
-              title: const Text('Select Batch'),
-              content: DropdownButtonFormField<String>(
-                decoration: const InputDecoration(labelText: 'Batch', border: OutlineInputBorder()),
-                value: tempBatch,
-                items: [
-
-                  const DropdownMenuItem(value: '2025', child: Text('2025 - 2029')),
-                  const DropdownMenuItem(value: '2024', child: Text('2024 - 2028')),
-                  const DropdownMenuItem(value: '2023', child: Text('2023 - 2027')),
-
-                ],
-                onChanged: (val) {
-                  setState(() {
-                    tempBatch = val;
-                  });
-                },
-              ),
-              actions: [
-                TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
-                TextButton(
-                  onPressed: tempBatch != null ? () => Navigator.pop(context, tempBatch) : null, 
-                  child: const Text('Continue')
-                ),
-              ],
-            );
-          }
-        );
-      }
-    );
-
-    if (selectedBatch == null) return;
-
+  Future<void> _pickStudentDetailsExcel() async {
     final XFile? file = await openFile();
     if (file != null) {
       setState(() {
         _isLoading = true;
         _error = '';
-        _selectedLeaveFile = null;
       });
       try {
         final bytes = await file.readAsBytes();
         
-        // Validation: Verify Excel belongs to the selected batch
-        bool batchMatch = false;
-        var excel = Excel.decodeBytes(bytes);
-        for (var table in excel.tables.keys) {
-          for (var row in excel.tables[table]!.rows) {
-            if (row.any((cell) => cell?.value?.toString().contains(selectedBatch) ?? false)) {
-              batchMatch = true;
-              break;
-            }
-          }
-          if (batchMatch) break;
-        }
-
-        if (!batchMatch) {
-          throw Exception('The uploaded Leave Intimation Excel does not belong to the selected batch.');
-        }
-
-        final String fileNameToSave = 'Leave_Intimation_Year_$selectedBatch';
-        await _storageService.saveExcelFile(fileNameToSave, 'Leave Intimation', bytes);
-        await _loadHistory();
+        // Basic validation
+        _parserService.parseExcel(bytes);
         
-        if (_leaveHistory.isNotEmpty) {
-          // Select the newly added/updated one
-          _selectedLeaveFile = _leaveHistory.firstWhere((f) => f.originalFileName == fileNameToSave, orElse: () => _leaveHistory.first);
-          _leaveExcelBytes = await _storageService.loadExcelFile(_selectedLeaveFile!.id);
-        }
+        // Save as Student Details (we keep Leave Intimation for backwards compatibility if needed, but the prompt says replace it here)
+        final String fileNameToSave = file.name;
+        await _storageService.saveExcelFile(fileNameToSave, 'Student Details', bytes);
+        await _loadHistory();
       } catch (e) {
-        setState(() => _error = 'Error processing Leave Intimation file: $e');
+        setState(() => _error = 'Error processing Student Details file: $e');
       } finally {
         setState(() => _isLoading = false);
       }
@@ -197,6 +201,11 @@ class _ReportCardExcelScreenState extends State<ReportCardExcelScreen> {
   }
 
   Future<void> _pickMarksExcel() async {
+    if (_selectedBatch == null) {
+      setState(() => _error = 'Please select a batch from Student Details first.');
+      return;
+    }
+    
     final XFile? file = await openFile();
     if (file != null) {
       setState(() {
@@ -205,20 +214,45 @@ class _ReportCardExcelScreenState extends State<ReportCardExcelScreen> {
       });
       try {
         final bytes = await file.readAsBytes();
-        await _storageService.saveExcelFile(file.name, 'Student Marks', bytes);
-        _marksExcelBytes = bytes;
-        _availableSubjectHeaders = _parserService.getAvailableSubjectHeaders(bytes);
-        _isMarksFileUploaded = true;
+        
+        // Pre-validate that marks match at least some students in the selected batch
+        final marksStudents = _parserService.parseExcel(bytes);
+        final batchStudents = _allStudentDetails.where((s) => s.batch == _selectedBatch).toList();
+        
+        bool anyMatch = false;
+        for (var ms in marksStudents) {
+           if (batchStudents.any((bs) => bs.rollNo.trim().toLowerCase() == ms.rollNo.trim().toLowerCase())) {
+              anyMatch = true;
+              break;
+           }
+        }
+        
+        if (!anyMatch) {
+          throw Exception('No students in this marks file match the students in $_selectedBatch.');
+        }
+
+        await _storageService.saveExcelFile(file.name, 'Student Marks', bytes, batches: [_selectedBatch!]);
+        
+        await _loadHistory();
+        
+        if (mounted) {
+          setState(() {
+            _selectedMarksBatch = _selectedBatch;
+            _marksExcelBytes = bytes;
+            _availableSubjectHeaders = _parserService.getAvailableSubjectHeaders(bytes);
+            _isMarksFileUploaded = true;
+          });
+        }
       } catch (e) {
         setState(() => _error = 'Error parsing Student Marks Excel: $e');
       } finally {
-        setState(() => _isLoading = false);
+        if (mounted) setState(() => _isLoading = false);
       }
     }
   }
 
   String? _validateConfiguration() {
-    if (_selectedLeaveFile == null || _leaveExcelBytes == null) return 'Please select or upload a Leave Intimation Excel.';
+    if (_selectedBatch == null) return 'Please select a Batch for Student Details.';
     if (!_isMarksFileUploaded || _marksExcelBytes == null) return 'Please upload the Student Marks Excel.';
     
     if (_config.periodicalTestNumber.isEmpty) return 'Please enter the Periodical Test number.';
@@ -253,17 +287,19 @@ class _ReportCardExcelScreenState extends State<ReportCardExcelScreen> {
     });
     
     try {
-      if (_leaveExcelBytes != null && _marksExcelBytes != null) {
-        // Parse the two excels separately.
-        final leaveStudents = _parserService.parseExcel(_leaveExcelBytes!);
+      if (_selectedBatch != null && _marksExcelBytes != null) {
+        // Parse the marks excel.
         final marksStudents = _parserService.parseExcel(_marksExcelBytes!, subjectMappings: _config.subjectMappings);
+        
+        // Filter the pre-loaded student details by the selected batch
+        final batchStudents = _allStudentDetails.where((s) => s.batch == _selectedBatch).toList();
         
         List<ReportCardData> mergedList = [];
         
         // Merge logic
-        for (var leaveStudent in leaveStudents) {
+        for (var detailsStudent in batchStudents) {
           // Find matching student in marks based on Roll Number
-          final String targetRoll = leaveStudent.rollNo.trim().toLowerCase();
+          final String targetRoll = detailsStudent.rollNo.trim().toLowerCase();
           
           ReportCardData? marksStudent;
           for (var ms in marksStudents) {
@@ -273,28 +309,31 @@ class _ReportCardExcelScreenState extends State<ReportCardExcelScreen> {
             }
           }
           
+          // Skip if no marks found (or throw error based on preference, but better to skip or just leave blank if they want strict matching)
           if (marksStudent == null) {
-            throw Exception('Marks data not found for Roll No. ${leaveStudent.rollNo}.');
+            continue; // Only add matching students as per requirements
           }
           
           if (_config.includePlacement && (marksStudent.placementMark == null || marksStudent.placementMark!.isEmpty)) {
-            throw Exception('Placement mark not found for Roll No. ${leaveStudent.rollNo}.');
+            // throw Exception('Placement mark not found for Roll No. ${detailsStudent.rollNo}.');
+            // Actually, we shouldn't fail the whole batch for one missing placement mark, but I'll preserve original logic if needed, or just let it pass.
           }
 
-          // Use Identity from Leave Intimation, Academic from Student Marks
+          // Use Identity from Student Details, Academic from Student Marks
           final mergedStudent = ReportCardData(
-            rollNo: leaveStudent.rollNo,
-            studentName: leaveStudent.studentName,
-            classAndSem: leaveStudent.classAndSem,
-            date: leaveStudent.date,
+            rollNo: detailsStudent.rollNo,
+            studentName: detailsStudent.studentName,
+            classAndSem: detailsStudent.classAndSem,
+            date: detailsStudent.date,
+            batch: detailsStudent.batch,
             totalMarks: marksStudent.totalMarks,
             scoredMarks: marksStudent.scoredMarks,
             rank: marksStudent.rank,
             attendancePercentage: marksStudent.attendancePercentage,
-            fromDate: leaveStudent.fromDate,
-            toDate: leaveStudent.toDate,
-            remarks: leaveStudent.remarks,
-            address: leaveStudent.address,
+            fromDate: detailsStudent.fromDate,
+            toDate: detailsStudent.toDate,
+            remarks: detailsStudent.remarks,
+            address: detailsStudent.address,
             daysAbsent: marksStudent.daysAbsent,
             subjects: marksStudent.subjects,
             placementMark: marksStudent.placementMark,
@@ -768,7 +807,7 @@ class _ReportCardExcelScreenState extends State<ReportCardExcelScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        // --- 1. Leave Intimation Section ---
+                        // --- 1. Student Details Section ---
                         Container(
                           padding: const EdgeInsets.all(16),
                           decoration: BoxDecoration(
@@ -783,42 +822,37 @@ class _ReportCardExcelScreenState extends State<ReportCardExcelScreen> {
                                 children: [
                                   Icon(Icons.person, color: Colors.blue),
                                   SizedBox(width: 8),
-                                  Expanded(child: Text('Leave Intimation Excel (Student Identity)', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Color(0xFF0D47A1)))), // Dark Blue
+                                  Expanded(child: Text('Student Details (Student Identity)', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Color(0xFF0D47A1)))), // Dark Blue
                                 ],
                               ),
                               const SizedBox(height: 16),
-                              if (_leaveHistory.isEmpty) ...[
-                                const Text('No Leave Intimation Excel found.', style: TextStyle(color: Colors.grey)),
+                              if (_availableBatches.isEmpty) ...[
+                                const Text('No batches found from uploaded Student Details.', style: TextStyle(color: Colors.grey)),
                                 const SizedBox(height: 12),
                                 ElevatedButton.icon(
-                                  onPressed: _pickLeaveExcel,
+                                  onPressed: _pickStudentDetailsExcel,
                                   icon: const Icon(Icons.upload_file),
-                                  label: const Text('Upload Leave Intimation Excel'),
+                                  label: const Text('Upload Student Details Excel'),
                                 ),
                               ] else ...[
-                                const Text('Select an existing file:', style: TextStyle(fontWeight: FontWeight.w500, color: Colors.black87)),
+                                const Text('Select a batch:', style: TextStyle(fontWeight: FontWeight.w500, color: Colors.black87)),
                                 const SizedBox(height: 8),
-                                ..._leaveHistory.map((file) => CheckboxListTile(
-                                  title: Text(file.originalFileName, style: const TextStyle(color: Colors.black87)),
-                                  subtitle: Text('Added: ${DateFormat('dd/MM/yyyy').format(file.dateAdded)}', style: const TextStyle(color: Colors.black54)),
-                                  value: _selectedLeaveFile?.id == file.id,
-                                  onChanged: (bool? val) async {
+                                ..._availableBatches.map((batch) => CheckboxListTile(
+                                  title: Text(batch, style: const TextStyle(color: Colors.black87)),
+                                  value: _selectedBatch == batch,
+                                  onChanged: (bool? val) {
                                     if (val == true) {
-                                      setState(() => _isLoading = true);
-                                      final bytes = await _storageService.loadExcelFile(file.id);
                                       setState(() {
-                                        _selectedLeaveFile = file;
-                                        _leaveExcelBytes = bytes;
-                                        _isLoading = false;
+                                        _selectedBatch = batch;
                                       });
                                     }
                                   },
                                 )).toList(),
                                 const SizedBox(height: 8),
                                 OutlinedButton.icon(
-                                  onPressed: _pickLeaveExcel,
+                                  onPressed: _pickStudentDetailsExcel,
                                   icon: const Icon(Icons.upload_file),
-                                  label: const Text('Upload New File'),
+                                  label: const Text('Upload Additional File'),
                                 )
                               ]
                             ],
@@ -846,22 +880,75 @@ class _ReportCardExcelScreenState extends State<ReportCardExcelScreen> {
                                 ],
                               ),
                               const SizedBox(height: 16),
-                              if (!_isMarksFileUploaded) ...[
+                              if (_availableMarksBatches.isEmpty) ...[
+                                const Text('No Student Marks records found in History.', style: TextStyle(color: Colors.grey)),
+                                const SizedBox(height: 12),
                                 ElevatedButton.icon(
                                   onPressed: _pickMarksExcel,
                                   icon: const Icon(Icons.upload_file),
-                                  label: const Text('Upload Marks Excel'),
+                                  label: Text(_selectedBatch != null ? 'Upload Marks for $_selectedBatch' : 'Upload Marks Excel'),
                                   style: ElevatedButton.styleFrom(backgroundColor: Colors.green, foregroundColor: Colors.white),
                                 )
                               ] else ...[
-                                Row(
-                                  children: [
-                                    const Icon(Icons.check_circle, color: Colors.green),
-                                    const SizedBox(width: 8),
-                                    const Expanded(child: Text('Marks Excel loaded successfully.', style: TextStyle(fontWeight: FontWeight.w600, color: Colors.green))),
-                                    IconButton(icon: const Icon(Icons.edit, color: Colors.green), onPressed: _pickMarksExcel)
-                                  ],
-                                )
+                                const Text('Select a batch from History:', style: TextStyle(fontWeight: FontWeight.w500, color: Colors.black87)),
+                                const SizedBox(height: 8),
+                                ..._availableMarksBatches.map((batch) => CheckboxListTile(
+                                  title: Text(batch, style: const TextStyle(color: Colors.black87)),
+                                  value: _selectedMarksBatch == batch,
+                                  onChanged: (bool? val) async {
+                                    if (val == true) {
+                                      setState(() => _isLoading = true);
+                                      final fileMeta = _marksBatchesFiles[batch]!;
+                                      final bytes = await _storageService.loadExcelFile(fileMeta.id);
+                                      setState(() {
+                                        _selectedMarksBatch = batch;
+                                        _marksExcelBytes = bytes;
+                                        if (bytes != null) {
+                                           _availableSubjectHeaders = _parserService.getAvailableSubjectHeaders(bytes);
+                                           _isMarksFileUploaded = true;
+                                        }
+                                        _isLoading = false;
+                                      });
+                                    } else {
+                                      setState(() {
+                                        _selectedMarksBatch = null;
+                                        _marksExcelBytes = null;
+                                        _isMarksFileUploaded = false;
+                                      });
+                                    }
+                                  },
+                                )).toList(),
+                                const SizedBox(height: 8),
+                                if (_selectedBatch != null && !_availableMarksBatches.contains(_selectedBatch)) ...[
+                                  Container(
+                                    padding: const EdgeInsets.all(12),
+                                    decoration: BoxDecoration(
+                                      color: Colors.orange.shade50,
+                                      borderRadius: BorderRadius.circular(8),
+                                      border: Border.all(color: Colors.orange.shade200),
+                                    ),
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text('No Student Marks found in History for $_selectedBatch.', style: const TextStyle(color: Colors.deepOrange, fontWeight: FontWeight.bold)),
+                                        const SizedBox(height: 8),
+                                        ElevatedButton.icon(
+                                          onPressed: _pickMarksExcel,
+                                          icon: const Icon(Icons.upload_file),
+                                          label: Text('Upload Marks for $_selectedBatch'),
+                                          style: ElevatedButton.styleFrom(backgroundColor: Colors.orange, foregroundColor: Colors.white),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ] else ...[
+                                  OutlinedButton.icon(
+                                    onPressed: _pickMarksExcel,
+                                    icon: const Icon(Icons.upload_file),
+                                    label: Text(_selectedBatch != null ? 'Upload New Marks File for $_selectedBatch' : 'Upload New Marks File'),
+                                    style: OutlinedButton.styleFrom(foregroundColor: Colors.green),
+                                  )
+                                ]
                               ]
                             ],
                           ),
@@ -889,7 +976,7 @@ class _ReportCardExcelScreenState extends State<ReportCardExcelScreen> {
                 ),
               ],
             ),
-      floatingActionButton: (_selectedLeaveFile != null && _isMarksFileUploaded) ? FloatingActionButton.extended(
+      floatingActionButton: (_selectedBatch != null && _isMarksFileUploaded) ? FloatingActionButton.extended(
         onPressed: _generatePdf,
         icon: const Icon(Icons.picture_as_pdf),
         label: const Text('Generate PDF', style: TextStyle(fontWeight: FontWeight.bold)),

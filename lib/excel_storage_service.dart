@@ -8,14 +8,16 @@ import 'package:uuid/uuid.dart';
 class ExcelFileMetadata {
   final String id;
   final String originalFileName;
-  final String fileType; // 'Leave Intimation' or 'Student Marks'
+  final String fileType; // 'Leave Intimation', 'Student Details' or 'Student Marks'
   final DateTime dateAdded;
+  final List<String>? batches;
 
   ExcelFileMetadata({
     required this.id,
     required this.originalFileName,
     required this.fileType,
     required this.dateAdded,
+    this.batches,
   });
 
   Map<String, dynamic> toJson() => {
@@ -23,6 +25,7 @@ class ExcelFileMetadata {
         'originalFileName': originalFileName,
         'fileType': fileType,
         'dateAdded': dateAdded.toIso8601String(),
+        if (batches != null) 'batches': batches,
       };
 
   factory ExcelFileMetadata.fromJson(Map<String, dynamic> json) =>
@@ -31,6 +34,7 @@ class ExcelFileMetadata {
         originalFileName: json['originalFileName'],
         fileType: json['fileType'],
         dateAdded: DateTime.parse(json['dateAdded']),
+        batches: json['batches'] != null ? List<String>.from(json['batches']) : null,
       );
 }
 
@@ -85,13 +89,14 @@ class ExcelStorageService {
     }
   }
 
-  Future<void> saveExcelFile(String originalFileName, String fileType, Uint8List bytes) async {
+  Future<void> saveExcelFile(String originalFileName, String fileType, Uint8List bytes, {List<String>? batches}) async {
     final id = _uuid.v4();
     final metadata = ExcelFileMetadata(
       id: id,
       originalFileName: originalFileName,
       fileType: fileType,
       dateAdded: DateTime.now(),
+      batches: batches,
     );
 
     if (kIsWeb) {

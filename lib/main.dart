@@ -24,7 +24,7 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
         colorScheme: ColorScheme.fromSeed(
           seedColor: const Color(0xFF296FD8),
-          brightness: Brightness.light,
+          brightness: Brightness.dark,
           primary: const Color(0xFF296FD8),
           surface: Colors.white,
         ),
@@ -35,7 +35,7 @@ class MyApp extends StatelessWidget {
         fontFamily: 'Inter',
         useMaterial3: true,
         colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFF296FD),
+          seedColor: const Color(0xFF296FD8),
           brightness: Brightness.dark,
           primary: const Color(0xFF296FD8),
           surface: const Color(0xFF1E1E1E),
