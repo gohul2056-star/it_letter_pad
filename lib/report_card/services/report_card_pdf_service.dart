@@ -175,7 +175,7 @@ class ReportCardPdfService {
   pw.Widget _buildHeaderBlock(pw.Font englishFont, pw.Font englishBold, ReportCardConfig config, pw.ImageProvider logoImage) {
     return pw.Row(
       mainAxisAlignment: pw.MainAxisAlignment.start,
-      crossAxisAlignment: pw.CrossAxisAlignment.center,
+      crossAxisAlignment: pw.CrossAxisAlignment.start,
       children: [
         pw.Image(logoImage, width: 60, height: 60),
         pw.SizedBox(width: 15),

@@ -176,7 +176,7 @@ class _ReportCardExcelScreenState extends State<ReportCardExcelScreen> {
   }
 
   Future<void> _pickStudentDetailsExcel() async {
-    final XFile? file = await openFile();
+       final XFile? file = await openFile();
     if (file != null) {
       setState(() {
         _isLoading = true;
@@ -638,6 +638,11 @@ class _ReportCardExcelScreenState extends State<ReportCardExcelScreen> {
               children: [
                 TextField(
                   controller: _periodicalTestController,
+                  textCapitalization: TextCapitalization.characters,
+                  inputFormatters: [
+                    FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z0-9]')),
+                    UpperCaseTextFormatter(),
+                  ],
                   decoration: InputDecoration(
                     hintText: 'e.g. II',
                     labelText: 'Periodical Test Number',
@@ -648,8 +653,12 @@ class _ReportCardExcelScreenState extends State<ReportCardExcelScreen> {
                 const SizedBox(height: 16),
                 TextField(
                   controller: _academicYearController,
+                  keyboardType: const TextInputType.numberWithOptions(signed: true, decimal: false),
+                  inputFormatters: [
+                    FilteringTextInputFormatter.allow(RegExp(r'[0-9\-]')),
+                  ],
                   decoration: InputDecoration(
-                    hintText: 'e.g. 2025 - 26',
+                    hintText: 'e.g. 2025-26',
                     labelText: 'Academic Year',
                     border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
                     contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -988,3 +997,10 @@ class _ReportCardExcelScreenState extends State<ReportCardExcelScreen> {
   }
 }
 
+
+class UpperCaseTextFormatter extends TextInputFormatter {
+  @override
+  TextEditingValue formatEditUpdate(TextEditingValue oldValue, TextEditingValue newValue) {
+    return newValue.copyWith(text: newValue.text.toUpperCase());
+  }
+}
